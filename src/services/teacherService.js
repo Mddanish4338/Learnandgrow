@@ -1,5 +1,14 @@
 import { db } from "../utils/firebase";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import {
+  Timestamp,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 //create course
 export const createCourse = async (courseData) => {
   try {
@@ -110,5 +119,22 @@ export const updateTeacherProfile = async (teacherId, updatedData) => {
   } catch (error) {
     console.error("Error updating teacher profile:", error);
     return false;
+  }
+};
+//get teacher's profile
+export const getTeacherProfile = async (teacherId) => {
+  try {
+    const teacherRef = doc(db, "teachers", teacherId);
+    const teacherSnap = await getDoc(teacherRef);
+
+    if (!teacherSnap.exists()) {
+      console.error("Teacher profile not found!");
+      return null;
+    }
+
+    return { id: teacherSnap.id, ...teacherSnap.data() };
+  } catch (error) {
+    console.error("Error fetching teacher profile:", error);
+    return null;
   }
 };

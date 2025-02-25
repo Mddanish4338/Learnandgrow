@@ -13,7 +13,6 @@ import { Link, useLocation } from "react-router-dom";
 function Sidebar({ setActivePage }) {
   const location = useLocation();
   const basePath = "/company-panel";
-  const [collapsed, setCollapsed] = useState(false);
 
   const navigation = [
     {
@@ -54,38 +53,28 @@ function Sidebar({ setActivePage }) {
           {navigation.map((item) => {
             const isActive = location.pathname.startsWith(item.path);
             return (
-              <Tooltip
-                key={item.name}
-                content={collapsed ? item.name : ""}
-                placement="right"
-                delay={200}
-                isDisabled={!collapsed}
+              <Button
+                as={Link}
+                to={item.path}
+                onPress={() => setActivePage(item.name)}
+                variant={isActive ? "flat" : "light"}
+                className={`w-full justify-start gap-2 mb-2 h-12 group hover:scale-102 transition-all ${
+                  isActive
+                    ? "bg-primary/10 text-primary font-medium border-l-4 border-primary"
+                    : "hover:bg-content2"
+                }`}
+                startContent={
+                  <div
+                    className={`${
+                      isActive ? "text-primary" : "text-foreground-500"
+                    } group-hover:text-primary transition-colors`}
+                  >
+                    {item.icon}
+                  </div>
+                }
               >
-                <Button
-                  as={Link}
-                  to={item.path}
-                  onPress={() => setActivePage(item.name)}
-                  variant={isActive ? "flat" : "light"}
-                  className={`w-full justify-${
-                    collapsed ? "center" : "start"
-                  } gap-2 mb-2 h-12 group hover:scale-102 transition-all ${
-                    isActive
-                      ? "bg-primary/10 text-primary font-medium border-l-4 border-primary"
-                      : "hover:bg-content2"
-                  }`}
-                  startContent={
-                    <div
-                      className={`${
-                        isActive ? "text-primary" : "text-foreground-500"
-                      } group-hover:text-primary transition-colors`}
-                    >
-                      {item.icon}
-                    </div>
-                  }
-                >
-                  {!collapsed && item.name}
-                </Button>
-              </Tooltip>
+                {item.name}
+              </Button>
             );
           })}
         </nav>
@@ -96,12 +85,10 @@ function Sidebar({ setActivePage }) {
         <Button
           variant="light"
           color="danger"
-          className={`w-full justify-${
-            collapsed ? "center" : "start"
-          } gap-2 hover:bg-danger/10 transition-colors`}
+          className={`w-full justify-start gap-2 hover:bg-danger/10 transition-colors`}
           startContent={<LogOut size={20} />}
         >
-          {!collapsed && "Logout"}
+          {"Logout"}
         </Button>
       </div>
     </div>

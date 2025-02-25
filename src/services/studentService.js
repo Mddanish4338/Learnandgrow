@@ -4,7 +4,12 @@ import {
   getDoc,
   updateDoc,
   arrayUnion,
+  arrayRemove,
   Timestamp,
+  collection,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 
 //get student by ID
@@ -218,5 +223,39 @@ export const getCourseDetails = async (courseId) => {
   } catch (error) {
     console.error("Error fetching course details:", error);
     return null;
+  }
+};
+//get all jobs
+export const getAllJobs = async () => {
+  try {
+    const jobsRef = collection(db, "jobs");
+    const querySnapshot = await getDocs(jobsRef);
+
+    const jobs = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return jobs;
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+    return [];
+  }
+};
+//get all courses
+export const getAllCourses = async () => {
+  try {
+    const coursesRef = collection(db, "courses");
+    const querySnapshot = await getDocs(coursesRef);
+
+    const courses = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return courses;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    return [];
   }
 };
