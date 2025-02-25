@@ -1,14 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import { FaBell, FaPencilAlt } from "react-icons/fa";
-import { FaWpexplorer } from "react-icons/fa6";
+import { useState, useEffect, useRef } from "react";
+import { MdDashboard, MdOutlineWork } from "react-icons/md";
+import { FaWpexplorer, FaPencilAlt, FaBell } from "react-icons/fa";
 import { GoBookmarkFill } from "react-icons/go";
 import { ImBooks } from "react-icons/im";
-import { MdDashboard, MdOutlineWork } from "react-icons/md";
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const tabsRef = useRef([]);
-  const [activeTabIndex, setActiveTabIndex] = useState(null);
   const [underlineStyle, setUnderlineStyle] = useState({
     top: 0,
     height: 0,
@@ -26,8 +23,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   // Update the underline position whenever the active tab changes
   useEffect(() => {
     const index = menuItems.findIndex((item) => item.tab === activeTab);
-    setActiveTabIndex(index);
-
     if (index !== -1 && tabsRef.current[index]) {
       const tabElement = tabsRef.current[index];
       setUnderlineStyle({
@@ -74,10 +69,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         </nav>
       </div>
 
-      {/* Profile Section */}
+      {/* Profile Section - Switches to "Profile" on Click */}
       <div
-        className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 text-blue-700 hover:bg-blue-200"
-        onClick={() => setIsProfileOpen(!isProfileOpen)}
+        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+          activeTab === "profile" ? "text-blue-700 bg-blue-100" : "text-gray-600"
+        } hover:bg-blue-200`}
+        onClick={() => setActiveTab("profile")}
       >
         <img
           src="https://avatar.iran.liara.run/public/38"
@@ -86,17 +83,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         />
         <span>John Doe</span>
       </div>
-
-      {/* Profile Drawer */}
-      {isProfileOpen && (
-        <div className="absolute bottom-16 left-4 w-56 bg-white shadow-lg rounded-lg p-4">
-          <p className="text-blue-700 font-semibold">John Doe</p>
-          <p className="text-sm text-gray-600">johndoe@example.com</p>
-          <button className="mt-2 w-full p-2 bg-sky-400 text-white rounded-lg">
-            Logout
-          </button>
-        </div>
-      )}
     </div>
   );
 };

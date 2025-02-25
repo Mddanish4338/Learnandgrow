@@ -1,25 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const CourseFilter = ({ setCourseFilters }) => {
-  const [instructor, setInstructor] = useState("");
-  const [skill, setSkill] = useState("");
-  const [duration, setDuration] = useState("");
-  const [price, setPrice] = useState("");
+  const [filters, setFilters] = useState({
+    instructor: "",
+    skill: "",
+    duration: "",
+    price: "",
+  });
 
-  const applyFilters = () => {
-    setCourseFilters({ instructor, skill, duration, price });
+  // Update parent state whenever filters change
+  useEffect(() => {
+    // Remove empty filters
+    const activeFilters = Object.fromEntries(
+      Object.entries(filters).filter(([_, value]) => value.trim() !== "")
+    );
+    setCourseFilters(activeFilters);
+  }, [filters, setCourseFilters]);
+
+  // Handle input change dynamically
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
   };
 
   return (
-    <div className="p-4 bg-gray-100 shadow-md rounded-lg sm:w-[314px]">
+    <div className="p-4 bg-gray-100 shadow-md rounded-lg sm:w-[314px] mt-2">
       <h3 className="font-semibold text-lg mb-3">Filter Courses</h3>
+
       {/* Instructor Filter */}
       <label className="block text-gray-700">Instructor</label>
       <input
         type="text"
+        name="instructor"
         placeholder="e.g., John Doe"
-        value={instructor}
-        onChange={(e) => setInstructor(e.target.value)}
+        value={filters.instructor}
+        onChange={handleInputChange}
         className="w-full p-2 border rounded mb-3 bg-slate-50"
       />
 
@@ -27,19 +45,21 @@ const CourseFilter = ({ setCourseFilters }) => {
       <label className="block text-gray-700">Skill</label>
       <input
         type="text"
+        name="skill"
         placeholder="e.g., JavaScript"
-        value={skill}
-        onChange={(e) => setSkill(e.target.value)}
-        className="w-full p-2 border rounded mb-3 bg-slate-50 "
+        value={filters.skill}
+        onChange={handleInputChange}
+        className="w-full p-2 border rounded mb-3 bg-slate-50"
       />
 
       {/* Duration Filter */}
       <label className="block text-gray-700">Duration</label>
       <input
         type="text"
+        name="duration"
         placeholder="e.g., 12 weeks"
-        value={duration}
-        onChange={(e) => setDuration(e.target.value)}
+        value={filters.duration}
+        onChange={handleInputChange}
         className="w-full p-2 border rounded mb-3 bg-slate-50"
       />
 
@@ -47,17 +67,19 @@ const CourseFilter = ({ setCourseFilters }) => {
       <label className="block text-gray-700">Price</label>
       <input
         type="text"
+        name="price"
         placeholder="e.g., $299"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
+        value={filters.price}
+        onChange={handleInputChange}
         className="w-full p-2 border rounded mb-3 bg-slate-50"
       />
 
+      {/* Clear Filters Button */}
       <button
-        onClick={applyFilters}
-        className="w-full bg-blue-600 text-white p-2 rounded mt-2"
+        onClick={() => setFilters({ instructor: "", skill: "", duration: "", price: "" })}
+        className="w-full bg-red-500 text-white p-2 rounded mt-2"
       >
-        Apply Filters
+        Clear Filters
       </button>
     </div>
   );

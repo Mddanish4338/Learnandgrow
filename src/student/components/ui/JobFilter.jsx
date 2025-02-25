@@ -1,14 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const JobFilter = ({ setFilters }) => {
-  const [location, setLocation] = useState("");
-  const [duration, setDuration] = useState("");
-  const [salary, setSalary] = useState("");
-  const [profile, setProfile] = useState(""); // Add profile filter for skills
+  const [filters, setLocalFilters] = useState({
+    location: "",
+    duration: "",
+    salary: "",
+    profile: "",
+  });
 
-  // This function will be called on "Apply" button click
-  const applyFilters = () => {
-    setFilters({ location, duration, salary, profile });
+  // Update filters dynamically when user types
+  useEffect(() => {
+    // Remove empty fields from filters
+    const appliedFilters = Object.fromEntries(
+      Object.entries(filters).filter(([_, value]) => value.trim() !== "")
+    );
+
+    setFilters(appliedFilters);
+  }, [filters, setFilters]);
+
+  // Handle input change dynamically
+  const handleInputChange = (e) => {
+    setLocalFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
   return (
@@ -21,8 +33,9 @@ const JobFilter = ({ setFilters }) => {
         className="w-full p-2 border rounded mb-3 bg-slate-50"
         type="text"
         placeholder="e.g., Remote, On-site"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
+        name="location"
+        value={filters.location}
+        onChange={handleInputChange}
       />
 
       {/* Duration Filter */}
@@ -31,8 +44,9 @@ const JobFilter = ({ setFilters }) => {
         className="w-full p-2 border rounded mb-3 bg-slate-50"
         type="text"
         placeholder="e.g., 2 Months, 6 Months"
-        value={duration}
-        onChange={(e) => setDuration(e.target.value)}
+        name="duration"
+        value={filters.duration}
+        onChange={handleInputChange}
       />
 
       {/* Salary Filter */}
@@ -41,8 +55,9 @@ const JobFilter = ({ setFilters }) => {
         className="w-full p-2 border rounded mb-3 bg-slate-50"
         type="text"
         placeholder="e.g., ₹25,000"
-        value={salary}
-        onChange={(e) => setSalary(e.target.value)}
+        name="salary"
+        value={filters.salary}
+        onChange={handleInputChange}
       />
 
       {/* Profile/Skills Filter */}
@@ -51,16 +66,17 @@ const JobFilter = ({ setFilters }) => {
         className="w-full p-2 border rounded mb-3 bg-slate-50"
         type="text"
         placeholder="e.g., JavaScript, Data Analysis"
-        value={profile}
-        onChange={(e) => setProfile(e.target.value)}
+        name="profile"
+        value={filters.profile}
+        onChange={handleInputChange}
       />
 
-      {/* Apply Filters Button */}
+      {/* Clear Filters Button */}
       <button
-        onClick={applyFilters}
-        className="w-full bg-blue-600 text-white p-2 rounded mt-2"
+        onClick={() => setLocalFilters({ location: "", duration: "", salary: "", profile: "" })}
+        className="w-full bg-red-500 text-white p-2 rounded mt-2"
       >
-        Apply Filters
+        Clear Filters
       </button>
     </div>
   );

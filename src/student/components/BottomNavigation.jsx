@@ -1,12 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { FiFilter, FiHome, FiBookmark, FiBriefcase } from "react-icons/fi";
 import { MdDashboard } from "react-icons/md";
-// import JobFilter from "@/components/ui/JobFilter";
-// import CourseFilter from "@/components/ui/CourseFilter";
 
 const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [jobDropdown, setJobDropdown] = useState(false);
   const tabsRef = useRef([]);
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
@@ -18,7 +15,6 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
     { name: "Jobs", tab: "jobs", icon: <FiBriefcase /> },
   ];
 
-  // Update underline position when activeTab changes
   useEffect(() => {
     const index = menuItems.findIndex((item) => item.tab === activeTab);
     if (index !== -1 && tabsRef.current[index]) {
@@ -34,7 +30,6 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
     <div>
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-40">
         <div className="relative flex justify-around items-center py-2">
-          {/* Underline Animation */}
           <div
             className="absolute bottom-0 h-1 bg-blue-500 transition-all duration-300 rounded-t-lg"
             style={{ left: underlineStyle.left, width: underlineStyle.width }}
@@ -47,11 +42,11 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
               onClick={() => {
                 if (item.tab === "jobs") {
                   if (!jobDropdown) {
-                    setJobDropdown(true); // Open dropdown first
+                    setJobDropdown(true);
                   }
                 } else {
                   setActiveTab(item.tab);
-                  setJobDropdown(false); // Close dropdown when switching to another tab
+                  setJobDropdown(false);
                 }
               }}
               className={`flex flex-col items-center ${
@@ -63,7 +58,6 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
             </button>
           ))}
 
-          {/* Job Dropdown */}
           {jobDropdown && (
             <div className="absolute bottom-[3.5rem] left-[18.5rem] transform -translate-x-1/2 bg-white shadow-lg border rounded-md p-2 w-32">
               <button
@@ -72,7 +66,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
                 }`}
                 onClick={() => {
                   setActiveTab("jobs");
-                  setJobDropdown(false); // Close dropdown after selecting
+                  setJobDropdown(false);
                 }}
               >
                 All Jobs
@@ -83,7 +77,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
                 }`}
                 onClick={() => {
                   setActiveTab("applied");
-                  setJobDropdown(false); // Close dropdown after selecting
+                  setJobDropdown(false);
                 }}
               >
                 Applied Jobs
@@ -91,7 +85,6 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
             </div>
           )}
 
-          {/* Filter Button */}
           <button
             onClick={() => setFilterModalOpen(true)}
             className="flex flex-col items-center text-gray-500"
@@ -100,9 +93,8 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
             <span className="text-xs mt-1">Filter</span>
           </button>
 
-          {/* Profile Button */}
           <button
-            onClick={() => setProfileModalOpen(true)}
+            onClick={() => setActiveTab("profile")}
             className="flex items-center text-gray-500"
           >
             <img
@@ -114,7 +106,6 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
         </div>
       </div>
 
-      {/* Mobile Filter Modal */}
       {filterModalOpen && (
         <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-4 rounded-lg w-11/12 max-w-md">
@@ -128,48 +119,6 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
               </button>
             </div>
             {renderFilterContent()}
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Profile Modal */}
-      {profileModalOpen && (
-        <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded-lg w-11/12 max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Edit Profile</h3>
-              <button
-                onClick={() => setProfileModalOpen(false)}
-                className="text-blue-600"
-              >
-                Close
-              </button>
-            </div>
-            <div>
-              <label className="block text-gray-600 mb-2">Name</label>
-              <input
-                type="text"
-                placeholder="John Doe"
-                className="w-full p-2 border rounded mb-4"
-              />
-              <label className="block text-gray-600 mb-2">Email</label>
-              <input
-                type="email"
-                placeholder="john@example.com"
-                className="w-full p-2 border rounded mb-4"
-              />
-              <label className="block text-gray-600 mb-2">
-                Profile Picture URL
-              </label>
-              <input
-                type="text"
-                placeholder="https://avatar.iran.liara.run/public/31"
-                className="w-full p-2 border rounded mb-4"
-              />
-              <button className="w-full bg-blue-600 text-white p-2 rounded">
-                Save Changes
-              </button>
-            </div>
           </div>
         </div>
       )}

@@ -8,6 +8,7 @@ import JobCard from "./components/JobCard";
 import CourseFilter from "./components/ui/CourseFilter";
 import AppliedJobs from "./components/AppliedJobs";
 import BottomNavigation from "./components/BottomNavigation";
+import StudentProfile from "./components/StudentProfile";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -67,10 +68,12 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="flex-1 ml-0 md:ml-64 p-4 overflow-y-auto h-full bg-gray-200">
         {/* Welcome Message */}
-        <div className="col-span-1 mb-3 md:col-span-3 bg-gradient-to-tr from-sky-400  to-sky-600 text-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-2xl font-bold">{getWelcomeMessage().title}</h2>
-          <p className="mt-1 text-gray-200">{getWelcomeMessage().message}</p>
-        </div>
+        {activeTab !== "profile" && (
+          <div className="mb-3 bg-gradient-to-tr from-sky-400 to-sky-600 text-white p-6 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold">{getWelcomeMessage().title}</h2>
+            <p className="mt-1 text-gray-200">{getWelcomeMessage().message}</p>
+          </div>
+        )}
         {activeTab === "dashboard" && (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
             {/* Progress Card */}
@@ -155,9 +158,9 @@ const Dashboard = () => {
         )}
 
         {activeTab === "jobs" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 sm:mb-10">
             {/* Job Cards */}
-            <div className="md:col-span-2 flex flex-col gap-6 mt-6">
+            <div className="md:col-span-2 flex flex-col gap-6 mt-6 sm:mb-10">
               {filteredJobs.length > 0 ? (
                 filteredJobs.map((job) => <JobCard key={job.id} job={job} />)
               ) : (
@@ -175,7 +178,7 @@ const Dashboard = () => {
         )}
 
         {activeTab === "applied" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 sm:mb-10">
             <div className="md:col-span-2 flex flex-col gap-6 mt-6">
               {filteredJobs.length > 0 ? (
                 <AppliedJobs jobs={filteredJobs} />
@@ -185,6 +188,17 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+
+        {activeTab === "profile" && (
+          <div className="flex justify-center mt-6">
+            <div className="w-full max-w-4xl bg-white p-6 rounded-xl shadow-md">
+              <StudentProfile />
+              
+            </div>
+          </div>
+        )}
+
+
       </div>
 
       {/* Mobile & Tablet Bottom Navigation */}
