@@ -55,7 +55,16 @@ const StatCard = ({
             <div className="flex items-center gap-2">
               <span className="text-3xl font-bold">{value}</span>
               {trend && (
-                <Chip color="success" variant="flat" size="sm" className="h-6">
+                <Chip
+                  color="success"
+                  variant="flat"
+                  size="sm"
+                  className="h-6"
+                  classNames={{
+                    base: "w-[100px]",
+                    content: "w-[150px], flex items-center justify-center",
+                  }}
+                >
                   <TrendingUp size={12} className="mr-1" />
                   {trend}
                 </Chip>
