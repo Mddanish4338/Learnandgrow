@@ -19,19 +19,15 @@ function CompanyApp() {
       {!isMobile && <Sidebar setActivePage={setActivePage} />}
 
       <div
-        className={`flex-1 p-4 md:p-6 mb-32 ${!isMobile ? "ml-64" : "pb-28"}`}
+        className={`flex-1 p-4 md:p-6 mb-32 ${!isMobile ? "ml-64" : "mb-28"}`}
       >
         <Routes>
-          <Route
-            path="/"
-            element={<Navigate to="/company-panel/dashboard" replace />}
-          />
           <Route path="dashboard" element={<DashBoard />} />
           <Route path="post-job" element={<PostJob />} />
           <Route path="manage-jobs" element={<ManageJobs />} />
-          <Route path="manage-jobs/job-details/1" element={<ViewDetails />} />
+          <Route path="manage-jobs/job-details/:id" element={<ViewDetails />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="*" element={<Navigate to="/company-panel/dashboard" />} />
+          <Route path="/" element={<Navigate to="dashboard" />} />
         </Routes>
       </div>
 

@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { MdDashboard } from "react-icons/md";
+import { useEffect, useRef, useState } from "react";
+import { FaBell, FaPencilAlt } from "react-icons/fa";
 import { FaWpexplorer } from "react-icons/fa6";
-import { FaPencilAlt } from "react-icons/fa";
-import { MdOutlineWork } from "react-icons/md";
 import { GoBookmarkFill } from "react-icons/go";
-import { FaBell } from "react-icons/fa";
 import { ImBooks } from "react-icons/im";
+import { MdDashboard, MdOutlineWork } from "react-icons/md";
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);

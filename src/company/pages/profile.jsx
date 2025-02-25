@@ -80,13 +80,19 @@ export default function Profile() {
     }));
   };
 
+  const gradientStyle = {
+    background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+  };
+
   return (
-    <div className="max-w-7xl  p-[-2] md:p-6 space-y-6">
-      {/* Header Card */}
-      <Card className="w-full">
-        <CardBody className="relative">
-          {/* Cover Image */}
-          <div className="relative h-48 rounded-lg overflow-hidden mb-16">
+    <div className="max-w-7xl p-4 md:p-6 space-y-6 bg-gray-50 rounded-xl">
+      <Card className="w-full border-none shadow-lg overflow-visible">
+        <CardBody className="relative p-0">
+          <div className="relative h-56 rounded-t-xl overflow-hidden mb-16">
+            <div
+              className="absolute inset-0 z-10 opacity-70"
+              style={gradientStyle}
+            ></div>
             <Image
               src="/api/placeholder/1200/400"
               alt="Company cover"
@@ -96,32 +102,36 @@ export default function Profile() {
             />
             <Button
               isIconOnly
-              className="absolute top-4 right-4"
+              className="absolute top-4 right-4 z-20 bg-white/30 backdrop-blur-md"
               variant="flat"
               size="sm"
             >
-              <Camera size={16} />
+              <Camera size={16} className="text-white" />
             </Button>
           </div>
 
-          {/* Profile Overview */}
-          <div className="absolute top-32 left-6 flex items-end gap-4">
+          <div className="absolute top-36 left-6 flex items-end gap-4 z-20">
             <Avatar
-              className="w-24 h-24 text-large"
+              className="w-28 h-28 text-large border-4 border-white shadow-lg"
               src="/api/placeholder/150/150"
             />
             <div className="mb-2">
-              <h1 className="text-2xl font-bold">{profile.name}</h1>
-              <p className="text-default-500">{profile.industry}</p>
+              <h1 className="text-2xl font-bold text-gray-800">
+                {profile.name}
+              </h1>
+              <p className="text-indigo-600 font-medium">{profile.industry}</p>
             </div>
           </div>
 
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-4 p-4">
             <Button
               color={isEditing ? "success" : "primary"}
-              variant="flat"
+              variant={isEditing ? "solid" : "flat"}
               startContent={isEditing ? undefined : <Edit2 size={16} />}
               onPress={handleEditToggle}
+              className={
+                isEditing ? "bg-emerald-500" : "bg-indigo-500 text-white"
+              }
             >
               {isEditing ? "Save Changes" : "Edit Profile"}
             </Button>
@@ -129,14 +139,14 @@ export default function Profile() {
         </CardBody>
       </Card>
 
-      {/* Main Content */}
       <Tabs
         selectedKey={selectedTab}
         onSelectionChange={setSelectedTab}
         variant="underlined"
         classNames={{
           tabList: "gap-6",
-          cursor: "w-full bg-primary",
+          cursor: "w-full bg-indigo-500",
+          tab: "data-[selected=true]:text-indigo-500 font-medium",
         }}
       >
         <Tab
@@ -148,8 +158,8 @@ export default function Profile() {
             </div>
           }
         >
-          <Card className="mt-4">
-            <CardBody className="space-y-6">
+          <Card className="mt-4 shadow-md border-none">
+            <CardBody className="space-y-6 p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <Input
@@ -158,8 +168,13 @@ export default function Profile() {
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     readOnly={!isEditing}
                     variant="bordered"
+                    className="bg-white"
+                    classNames={{
+                      label: "text-indigo-600 font-medium",
+                      input: "text-gray-800",
+                    }}
                     startContent={
-                      <Building2 className="text-default-400" size={16} />
+                      <Building2 className="text-indigo-400" size={16} />
                     }
                   />
                   <Input
@@ -170,8 +185,13 @@ export default function Profile() {
                     }
                     readOnly={!isEditing}
                     variant="bordered"
+                    className="bg-white"
+                    classNames={{
+                      label: "text-indigo-600 font-medium",
+                      input: "text-gray-800",
+                    }}
                     startContent={
-                      <MapPin className="text-default-400" size={16} />
+                      <MapPin className="text-indigo-400" size={16} />
                     }
                   />
                   <Input
@@ -182,8 +202,13 @@ export default function Profile() {
                     }
                     readOnly={!isEditing}
                     variant="bordered"
+                    className="bg-white"
+                    classNames={{
+                      label: "text-indigo-600 font-medium",
+                      input: "text-gray-800",
+                    }}
                     startContent={
-                      <Globe className="text-default-400" size={16} />
+                      <Globe className="text-indigo-400" size={16} />
                     }
                   />
                 </div>
@@ -194,8 +219,13 @@ export default function Profile() {
                     onChange={(e) => handleInputChange("size", e.target.value)}
                     readOnly={!isEditing}
                     variant="bordered"
+                    className="bg-white"
+                    classNames={{
+                      label: "text-indigo-600 font-medium",
+                      input: "text-gray-800",
+                    }}
                     startContent={
-                      <Users className="text-default-400" size={16} />
+                      <Users className="text-indigo-400" size={16} />
                     }
                   />
                   <Input
@@ -204,8 +234,13 @@ export default function Profile() {
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     readOnly={!isEditing}
                     variant="bordered"
+                    className="bg-white"
+                    classNames={{
+                      label: "text-indigo-600 font-medium",
+                      input: "text-gray-800",
+                    }}
                     startContent={
-                      <Mail className="text-default-400" size={16} />
+                      <Mail className="text-indigo-400" size={16} />
                     }
                   />
                   <Input
@@ -214,8 +249,13 @@ export default function Profile() {
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     readOnly={!isEditing}
                     variant="bordered"
+                    className="bg-white"
+                    classNames={{
+                      label: "text-indigo-600 font-medium",
+                      input: "text-gray-800",
+                    }}
                     startContent={
-                      <Phone className="text-default-400" size={16} />
+                      <Phone className="text-indigo-400" size={16} />
                     }
                   />
                 </div>
@@ -227,16 +267,25 @@ export default function Profile() {
                 onChange={(e) => handleInputChange("about", e.target.value)}
                 readOnly={!isEditing}
                 variant="bordered"
+                className="bg-white"
+                classNames={{
+                  label: "text-indigo-600 font-medium",
+                  input: "text-gray-800",
+                }}
                 minRows={4}
               />
 
-              <div>
-                <h3 className="text-lg font-semibold mb-3">
+              <div className="bg-indigo-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-3 text-indigo-700">
                   Employee Benefits
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {profile.benefits.map((benefit, index) => (
-                    <Chip key={index} variant="flat" color="primary">
+                    <Chip
+                      key={index}
+                      variant="flat"
+                      className="bg-indigo-100 text-indigo-700 font-medium"
+                    >
                       {benefit}
                     </Chip>
                   ))}
@@ -255,10 +304,11 @@ export default function Profile() {
             </div>
           }
         >
-          <Card className="mt-4">
+          <Card className="mt-4 shadow-md border-none">
             <CardBody>
-              <div className="text-center py-8 text-default-500">
-                No active job postings
+              <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg">
+                <Briefcase size={48} className="mx-auto mb-4 text-indigo-300" />
+                <p className="text-lg">No active job postings</p>
               </div>
             </CardBody>
           </Card>
@@ -273,17 +323,20 @@ export default function Profile() {
             </div>
           }
         >
-          <Card className="mt-4">
-            <CardBody className="space-y-4">
+          <Card className="mt-4 shadow-md border-none">
+            <CardBody className="space-y-4 p-6">
               <Input
                 label="Facebook"
                 value={profile.socialLinks.facebook}
                 onChange={(e) => handleSocialChange("facebook", e.target.value)}
                 readOnly={!isEditing}
                 variant="bordered"
-                startContent={
-                  <Facebook className="text-default-400" size={16} />
-                }
+                className="bg-white"
+                classNames={{
+                  label: "text-indigo-600 font-medium",
+                  input: "text-gray-800",
+                }}
+                startContent={<Facebook className="text-blue-500" size={16} />}
               />
               <Input
                 label="Twitter"
@@ -291,9 +344,12 @@ export default function Profile() {
                 onChange={(e) => handleSocialChange("twitter", e.target.value)}
                 readOnly={!isEditing}
                 variant="bordered"
-                startContent={
-                  <Twitter className="text-default-400" size={16} />
-                }
+                className="bg-white"
+                classNames={{
+                  label: "text-indigo-600 font-medium",
+                  input: "text-gray-800",
+                }}
+                startContent={<Twitter className="text-sky-500" size={16} />}
               />
               <Input
                 label="LinkedIn"
@@ -301,9 +357,12 @@ export default function Profile() {
                 onChange={(e) => handleSocialChange("linkedin", e.target.value)}
                 readOnly={!isEditing}
                 variant="bordered"
-                startContent={
-                  <Linkedin className="text-default-400" size={16} />
-                }
+                className="bg-white"
+                classNames={{
+                  label: "text-indigo-600 font-medium",
+                  input: "text-gray-800",
+                }}
+                startContent={<Linkedin className="text-blue-700" size={16} />}
               />
             </CardBody>
           </Card>

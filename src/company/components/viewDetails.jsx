@@ -13,7 +13,11 @@ import {
   CheckCircle2,
   ChevronLeft,
   Clock,
+  MapPin,
+  Briefcase,
+  Calendar,
   Users,
+  Building,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useIsMobile from "../../hooks/useIsMobile";
@@ -106,115 +110,148 @@ const ViewDetails = () => {
     "Under Review": "primary",
   };
 
-  return (
-    <div className="max-w-7xl mx-auto  space-y-6">
-      {/* Header Section */}
+  const gradientOverlay = {
+    background: "linear-gradient(120deg, #4f46e5 0%, #7c3aed 100%)",
+  };
 
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <Button
-              isIconOnly
-              variant="ghost"
-              radius="full"
-              size="sm"
-              onPress={() => Navigate(-1)}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <h1 className="text-2xl font-bold">{jobDetails.title}</h1>
-            <Chip color="success" variant="flat">
-              {jobDetails.status}
-            </Chip>
-          </div>
-          <div className="text-gray-600">
-            <span>Job ID: {jobDetails.id}</span> •
-            <span className="ml-2">
-              Posted: {new Date(jobDetails.posted).toLocaleDateString()}
-            </span>
+  return (
+    <div className="max-w-7xl mx-auto space-y-6 p-4 bg-gray-50 rounded-xl">
+      <div className="rounded-xl p-6 text-white mb-8" style={gradientOverlay}>
+        <div className="flex justify-between items-start">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Button
+                isIconOnly
+                variant="flat"
+                radius="full"
+                size="sm"
+                className="bg-white/20 backdrop-blur-sm text-white"
+                onPress={() => Navigate(-1)}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <h1 className="text-3xl font-bold">{jobDetails.title}</h1>
+              <Chip color="success" variant="solid" className="ml-2">
+                {jobDetails.status}
+              </Chip>
+            </div>
+            <div className="text-white/80 flex items-center gap-4 mt-2">
+              <div className="flex items-center">
+                <Calendar className="w-4 h-4 mr-1" />
+                <span>
+                  Posted: {new Date(jobDetails.posted).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <Briefcase className="w-4 h-4 mr-1" />
+                <span>Job ID: {jobDetails.id}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Users className="w-6 h-6 text-primary" />
+        <Card className="shadow-md border-none overflow-hidden">
+          <CardBody className="flex items-center gap-4 p-4">
+            <div className="p-3 bg-indigo-100 rounded-lg">
+              <Users className="w-6 h-6 text-indigo-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Total Applicants</p>
-              <p className="text-2xl font-semibold">
+              <p className="text-sm text-gray-600 font-medium">
+                Total Applicants
+              </p>
+              <p className="text-2xl font-bold text-indigo-600">
                 {jobDetails.totalApplicants}
               </p>
             </div>
           </CardBody>
         </Card>
-        <Card>
-          <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-warning/10 rounded-lg">
-              <AlertCircle className="w-6 h-6 text-warning" />
+        <Card className="shadow-md border-none overflow-hidden">
+          <CardBody className="flex items-center gap-4 p-4">
+            <div className="p-3 bg-amber-100 rounded-lg">
+              <AlertCircle className="w-6 h-6 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">New Applications</p>
-              <p className="text-2xl font-semibold">
+              <p className="text-sm text-gray-600 font-medium">
+                New Applications
+              </p>
+              <p className="text-2xl font-bold text-amber-600">
                 {jobDetails.newApplicants}
               </p>
             </div>
           </CardBody>
         </Card>
-        <Card>
-          <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-success/10 rounded-lg">
-              <CheckCircle2 className="w-6 h-6 text-success" />
+        <Card className="shadow-md border-none overflow-hidden">
+          <CardBody className="flex items-center gap-4 p-4">
+            <div className="p-3 bg-emerald-100 rounded-lg">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Shortlisted</p>
-              <p className="text-2xl font-semibold">8</p>
+              <p className="text-sm text-gray-600 font-medium">Shortlisted</p>
+              <p className="text-2xl font-bold text-emerald-600">8</p>
             </div>
           </CardBody>
         </Card>
-        <Card>
-          <CardBody className="flex items-center gap-4">
-            <div className="p-3 bg-danger/10 rounded-lg">
-              <Clock className="w-6 h-6 text-danger" />
+        <Card className="shadow-md border-none overflow-hidden">
+          <CardBody className="flex items-center gap-4 p-4">
+            <div className="p-3 bg-rose-100 rounded-lg">
+              <Clock className="w-6 h-6 text-rose-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Under Review</p>
-              <p className="text-2xl font-semibold">15</p>
+              <p className="text-sm text-gray-600 font-medium">Under Review</p>
+              <p className="text-2xl font-bold text-rose-600">15</p>
             </div>
           </CardBody>
         </Card>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        {/* Job Details */}
         <div className="md:col-span-1 space-y-6">
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Job Details</h2>
+          <Card className="shadow-md border-none overflow-hidden">
+            <CardHeader className="bg-indigo-50 border-b border-indigo-100">
+              <h2 className="text-xl font-bold text-indigo-800">Job Details</h2>
             </CardHeader>
-            <CardBody className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500">Department</p>
-                <p>{jobDetails.department}</p>
+            <CardBody className="space-y-4 p-5">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-100 rounded-full">
+                  <Building className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 font-medium">
+                    Department
+                  </p>
+                  <p className="font-semibold">{jobDetails.department}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">Location</p>
-                <p>{jobDetails.location}</p>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-100 rounded-full">
+                  <MapPin className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 font-medium">Location</p>
+                  <p className="font-semibold">{jobDetails.location}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">Job Type</p>
-                <p>{jobDetails.type}</p>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-100 rounded-full">
+                  <Briefcase className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 font-medium">Job Type</p>
+                  <p className="font-semibold">{jobDetails.type}</p>
+                </div>
               </div>
-              <Divider />
-              <div>
-                <h3 className="font-semibold mb-2">Requirements</h3>
-                <ul className="list-disc pl-5 space-y-1">
+              <Divider className="my-4" />
+              <div className="bg-indigo-50 p-4 rounded-lg">
+                <h3 className="font-bold text-indigo-800 mb-3">Requirements</h3>
+                <ul className="space-y-2">
                   {jobDetails.requirements.map((req, index) => (
-                    <li key={index} className="text-gray-600">
-                      {req}
+                    <li key={index} className="flex items-start gap-2">
+                      <div className="mt-1 min-w-4 h-4 rounded-full bg-indigo-200 flex items-center justify-center">
+                        <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
+                      </div>
+                      <span className="text-gray-700">{req}</span>
                     </li>
                   ))}
                 </ul>
@@ -223,13 +260,15 @@ const ViewDetails = () => {
           </Card>
         </div>
 
-        {/* Applicants Table */}
         <div className="md:col-span-2">
-          <Card>
-            <CardHeader className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Recent Applicants</h2>
+          <Card className="shadow-md border-none overflow-hidden">
+            <CardHeader className="bg-indigo-50 border-b border-indigo-100 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-indigo-800">
+                Recent Applicants
+              </h2>
             </CardHeader>
-            <CardBody>
+            <CardBody className="p-0">
+              {" "}
               <ApplicantsTable applicants={applicants} isMobile={isMobile} />
             </CardBody>
           </Card>

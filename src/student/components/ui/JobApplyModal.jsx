@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 const JobApplyModal = ({ isOpen, onClose, job }) => {
   if (!isOpen || !job) return null;
 

@@ -15,9 +15,10 @@ import {
   TableHeader,
   TableRow,
   User,
+  Tooltip,
 } from "@nextui-org/react";
-import { Eye, Mail, UserCheck, UserX } from "lucide-react";
-import React from "react";
+import { Eye, Mail, Download, UserCheck, UserX, Copy } from "lucide-react";
+import React, { useState } from "react";
 
 const statusColorMap = {
   Pending: "warning",
@@ -27,6 +28,9 @@ const statusColorMap = {
 };
 
 const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [updatedApplicants, setUpdatedApplicants] = useState(applicants);
+
   const columns = isMobile
     ? [
         { key: "name", label: "APPLICANT" },
@@ -40,6 +44,61 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
         { key: "experience", label: "EXPERIENCE" },
         { key: "actions", label: "" },
       ];
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
+
+  const handleDownloadResume = (resumeUrl) => {
+    const link = document.createElement("a");
+    link.href = resumeUrl;
+    link.download = "Resume.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleShortlist = (applicantId) => {
+    if (handleAction) {
+      // If parent component provides handleAction, use it
+      handleAction({
+        type: "shortlist",
+        applicantId,
+      });
+    } else {
+      // Otherwise, handle it internally
+      setUpdatedApplicants(
+        updatedApplicants.map((app) =>
+          app.id === applicantId ? { ...app, status: "Shortlisted" } : app
+        )
+      );
+    }
+  };
+
+  const handleReject = (applicantId) => {
+    if (handleAction) {
+      // If parent component provides handleAction, use it
+      handleAction({
+        type: "reject",
+        applicantId,
+      });
+    } else {
+      // Otherwise, handle it internally
+      setUpdatedApplicants(
+        updatedApplicants.map((app) =>
+          app.id === applicantId ? { ...app, status: "Rejected" } : app
+        )
+      );
+    }
+  };
 
   const renderCell = (applicant, columnKey) => {
     switch (columnKey) {
@@ -55,6 +114,18 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
           />
         );
 
+      case "name":
+        return (
+          <div className="flex items-center gap-2">
+            <img
+              src={applicant.avatar}
+              alt={applicant.name}
+              className="w-6 h-6 rounded-full"
+            />
+            <span>{applicant.name}</span>
+          </div>
+        );
+
       case "status":
         return (
           <Chip
@@ -66,92 +137,141 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
             {applicant.status}
           </Chip>
         );
+
       case "actions":
         return (
-          <>
-            <div className={`flex ${isMobile ? "gap-[1px]" : "gap-2"}`}>
-              <Popover
-                placement={isMobile ? "top" : "left"}
-                showArrow={true}
-                offset={10}
-                trigger="hover"
-              >
+          <div className={`flex ${isMobile ? "gap-[0px]" : "gap-2"}`}>
+            <Popover
+              placement={isMobile ? "top" : "left"}
+              showArrow
+              trigger="hover"
+            >
+              <PopoverTrigger>
+                <Button isIconOnly variant="light" size="sm">
+                  <Eye className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className="w-80 p-4">
+                  <div className="flex gap-4 items-start mb-4">
+                    <img
+                      src={applicant.avatar}
+                      alt={`${applicant.name} profile`}
+                      className="w-16 h-16 rounded-md object-cover"
+                    />
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        {applicant.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">{applicant.email}</p>
+                      <p className="text-xs text-gray-500">{applicant.phone}</p>
+                      <p className="text-xs text-gray-500">
+                        {applicant.location}
+                      </p>
+                    </div>
+                  </div>
+                  <Divider className="my-2" />
+                  <div className="my-2">
+                    <p className="text-sm font-medium">Experience</p>
+                    <p className="text-sm">{applicant.experience}</p>
+                  </div>
+                  <div className="my-2">
+                    <p className="text-sm font-medium">Education</p>
+                    <p className="text-sm">{applicant.education}</p>
+                  </div>
+                  <div className="my-2">
+                    <p className="text-sm font-medium">Skills</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {applicant.skills.map((skill, index) => (
+                        <Chip key={index} size="sm" variant="flat">
+                          {skill}
+                        </Chip>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="my-2">
+                    <p className="text-sm font-medium">Summary</p>
+                    <p className="text-sm">{applicant.summary}</p>
+                  </div>
+                  <div className="mt-4 flex justify-between">
+                    <Chip
+                      color={statusColorMap[applicant.status]}
+                      variant="flat"
+                    >
+                      {applicant.status}
+                    </Chip>
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      onPress={() => handleDownloadResume(applicant.resume)}
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            {!isMobile && (
+              <Popover placement="top" showArrow>
                 <PopoverTrigger>
                   <Button isIconOnly variant="light" size="sm">
-                    <Eye className="w-4 h-4" />
+                    <Mail className="w-4 h-4" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className="w-80 p-4">
-                    <div className="flex gap-4 items-start mb-4">
-                      <img
-                        src={applicant.avatar}
-                        alt={`${applicant.name} profile`}
-                        className="w-16 h-16 rounded-md object-cover"
-                      />
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {applicant.name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {applicant.email}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {applicant.phone}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {applicant.location}
-                        </p>
-                      </div>
+                  <div className="p-2 relative">
+                    <div className="pr-8 py-2">
+                      <p className="text-sm font-medium">Email Address:</p>
+                      <p className="text-sm mt-1">{applicant.email}</p>
                     </div>
-                    <Divider className="my-2" />
-                    <div className="my-2">
-                      <p className="text-sm font-medium">Experience</p>
-                      <p className="text-sm">{applicant.experience}</p>
-                    </div>
-                    <div className="my-2">
-                      <p className="text-sm font-medium">Education</p>
-                      <p className="text-sm">{applicant.education}</p>
-                    </div>
-                    <div className="my-2">
-                      <p className="text-sm font-medium">Skills</p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {applicant.skills.map((skill, index) => (
-                          <Chip key={index} size="sm" variant="flat">
-                            {skill}
-                          </Chip>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="my-2">
-                      <p className="text-sm font-medium">Summary</p>
-                      <p className="text-sm">{applicant.summary}</p>
-                    </div>
-                    <div className="mt-4">
-                      <Chip
-                        color={statusColorMap[applicant.status]}
-                        variant="flat"
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      className="absolute top-2 right-2"
+                      onPress={() => copyToClipboard(applicant.email)}
+                    >
+                      <Tooltip
+                        content={copySuccess ? "Copied!" : "Copy"}
+                        placement="top"
                       >
-                        {applicant.status}
-                      </Chip>
-                    </div>
+                        <Copy className="w-4 h-4" />
+                      </Tooltip>
+                    </Button>
                   </div>
                 </PopoverContent>
               </Popover>
-              {!isMobile && (
-                <Button isIconOnly variant="light" size="sm">
-                  <Mail className="w-4 h-4" />
-                </Button>
-              )}
-              <Button isIconOnly variant="light" size="sm" color="success">
+            )}
+
+            <Tooltip content="Shortlist">
+              <Button
+                isIconOnly
+                variant="light"
+                size="sm"
+                color="success"
+                onPress={() => handleShortlist(applicant.id)}
+                isDisabled={applicant.status === "Shortlisted"}
+              >
                 <UserCheck className="w-4 h-4" />
               </Button>
-              <Button isIconOnly variant="light" size="sm" color="danger">
+            </Tooltip>
+
+            <Tooltip content="Reject">
+              <Button
+                isIconOnly
+                variant="light"
+                size="sm"
+                color="danger"
+                onPress={() => handleReject(applicant.id)}
+                isDisabled={applicant.status === "Rejected"}
+              >
                 <UserX className="w-4 h-4" />
               </Button>
-            </div>
-          </>
+            </Tooltip>
+          </div>
         );
+
       default:
         return applicant[columnKey];
     }
@@ -168,12 +288,12 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
             aria-label="Applicants table"
             selectionMode="none"
             classNames={{
-              base: "w-full min-w-full p-0 ",
+              base: "w-full min-w-full p-0",
               table: "p-0 overflow-x-visible",
               th: "text-xs md:text-sm py-2 md:px-4",
               td: "text-xs md:text-sm py-2 p-0 md:px-4",
-              tbody: "p-0 gap-x-1 ",
-              wrapper: "p-0 ",
+              tbody: "p-0 gap-x-1",
+              wrapper: "p-0",
             }}
             shadow={!isMobile ? "sm" : "none"}
             layout={isMobile ? "fixed" : "auto"}
@@ -183,8 +303,8 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
                 <TableColumn key={column.key}>{column.label}</TableColumn>
               ))}
             </TableHeader>
-            <TableBody>
-              {applicants.map((applicant) => (
+            <TableBody className="gap-y-2 space-y-2">
+              {updatedApplicants.map((applicant) => (
                 <TableRow key={applicant.id}>
                   {columns.map((column) => (
                     <TableCell key={`${applicant.id}-${column.key}`}>
