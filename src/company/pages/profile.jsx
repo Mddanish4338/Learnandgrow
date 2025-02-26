@@ -25,11 +25,11 @@ import {
   Users,
 } from "lucide-react";
 import React, { useState } from "react";
-
+import { useAuth } from "../../context/AuthContext";
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("about");
   const [isEditing, setIsEditing] = useState(false);
-
+  const { user } = useAuth();
   const [profile, setProfile] = useState({
     name: "TechCorp Solutions",
     industry: "Information Technology",
