@@ -10,7 +10,7 @@ const DisplayPosts = () => {
   // Fetch all posts from Firestore
   useEffect(() => {
     const fetchPosts = async () => {
-      const postsRef = collection(db, 'mentorshipPrograms');
+      const postsRef = collection(db, 'courses');
       const postsSnap = await getDocs(postsRef);
       const postsData = postsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setPosts(postsData);

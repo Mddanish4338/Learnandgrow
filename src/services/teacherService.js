@@ -8,6 +8,8 @@ import {
   query,
   updateDoc,
   where,
+  addDoc,
+  deleteDoc,
 } from "firebase/firestore";
 //create course
 export const createCourse = async (courseData) => {
