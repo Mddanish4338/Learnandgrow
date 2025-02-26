@@ -1,8 +1,7 @@
 import React from "react";
 
-const CourseCard = ({ course }) => {
+const CourseCard = ({ course, isEnrolled, onEnroll, onWithdraw }) => {
   return (
-    
     <div className="bg-gray-100 shadow-lg rounded-xl p-4 w-[300px] sm:w-80 md:w-96 mx-auto">
       {/* Instructor Info */}
       <div className="flex items-center space-x-3">
@@ -38,7 +37,7 @@ const CourseCard = ({ course }) => {
         </div>
       </div>
 
-      {/* Chat Button */}
+      {/* Action Buttons */}
       <div className="mt-4 flex justify-between items-center">
         <a
           href={course.chatLink}
@@ -48,6 +47,22 @@ const CourseCard = ({ course }) => {
         >
           + Chat with Tutor
         </a>
+
+        {isEnrolled ? (
+          <button
+            onClick={() => onWithdraw(course.id)}
+            className="bg-red-600 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-red-500 transition-all ease-in duration-300"
+          >
+            Withdraw
+          </button>
+        ) : (
+          <button
+            onClick={() => onEnroll(course.id)}
+            className="bg-blue-600 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-500 transition-all ease-in duration-300"
+          >
+            Enroll
+          </button>
+        )}
       </div>
     </div>
   );

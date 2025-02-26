@@ -3,9 +3,34 @@ import { FaLocationPin } from "react-icons/fa6";
 import { SlCalender } from "react-icons/sl";
 import { FaMoneyBill } from "react-icons/fa";
 import JobApplyModal from "./ui/JobApplyModal";
+import { applyForJob } from "../../services/studentService"; // Import apply function
+import { useAuth } from "../../context/AuthContext"; // Import auth context (assuming you have one)// Import toast for notifications
 
 const JobCard = ({ job }) => {
+  const { user } = useAuth(); // Get authenticated user
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Apply function
+  const handleApply = async (applicationData) => {
+    if (!user || !user.studentId) {
+      alert("You must be logged in to apply for jobs.");
+      return;
+    }
+
+    setLoading(true);
+
+    const success = await applyForJob(job.id, user.studentId, applicationData);
+
+    setLoading(false);
+
+    if (success) {
+      alert("Successfully applied for the job!");
+      setIsModalOpen(false);
+    } else {
+      alert("Failed to apply. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -44,9 +69,10 @@ const JobCard = ({ job }) => {
           {/* Apply Button */}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 mt-3 transition-all duration-300 ease-in"
+            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 mt-3 transition-all duration-300 ease-in disabled:opacity-50"
+            disabled={loading}
           >
-            Apply
+            {loading ? "Applying..." : "Apply"}
           </button>
         </div>
 
@@ -65,6 +91,7 @@ const JobCard = ({ job }) => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         job={job}
+        onApply={handleApply} // Pass apply function to modal
       />
     </>
   );

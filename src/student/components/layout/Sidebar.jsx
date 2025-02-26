@@ -3,6 +3,8 @@ import { MdDashboard, MdOutlineWork } from "react-icons/md";
 import { FaWpexplorer, FaPencilAlt, FaBell } from "react-icons/fa";
 import { GoBookmarkFill } from "react-icons/go";
 import { ImBooks } from "react-icons/im";
+import { useAuth } from "../../../context/AuthContext";
+import { getStudentById } from "../../../services/studentService";
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const tabsRef = useRef([]);
@@ -20,6 +22,10 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { name: "Notifications", tab: "notifications", icon: <FaBell /> },
   ];
 
+  const { user } = useAuth();
+  const [student, setStudent] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   // Update the underline position whenever the active tab changes
   useEffect(() => {
     const index = menuItems.findIndex((item) => item.tab === activeTab);
@@ -31,6 +37,20 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       });
     }
   }, [activeTab]);
+
+  
+  
+    useEffect(() => {
+      const fetchStudentData = async () => {
+        if (user?.uid) {
+          const studentData = await getStudentById(user.uid);
+          console.log(studentData)
+          setStudent(studentData);
+          setLoading(false);
+        }
+      };
+      fetchStudentData();
+    }, [user.uid]);
 
   return (
     <div className="w-64 h-screen bg-gray-100 p-4 flex flex-col justify-between relative">
@@ -81,7 +101,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           alt="Profile"
           className="w-10 h-10 rounded-full"
         />
-        <span>John Doe</span>
+        <span>{student?.firstName + student?.lastName || "Student"}</span>
       </div>
     </div>
   );

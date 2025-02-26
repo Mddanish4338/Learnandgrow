@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
-import { courses as dummyCourses } from "../student/lib/dummyData";
+import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
+import { db } from "../../src/utils/firebase"; // Ensure the correct path
+import {
+  enrollInCourse,
+  withdrawFromCourse,
+  getEnrolledCourses,
+  getCourseDetails, // Import getCourseDetails
+} from "../services/studentService"; // Import Firestore functions
 
-const useCourses = () => {
-  // Holds the full courses data
-  const [coursesList, setCoursesList] = useState([]);
-  // Holds the filtered courses based on filter criteria
-  const [filteredCourses, setFilteredCourses] = useState([]);
-  // Filter criteria for courses
+const useCourses = (studentId) => {
+  const [coursesList, setCoursesList] = useState([]); // All courses
+  const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
+  const [enrolledCourses, setEnrolledCourses] = useState([]); // Enrolled courses
   const [courseFilters, setCourseFilters] = useState({
     instructor: "",
     skill: "",
@@ -14,13 +19,35 @@ const useCourses = () => {
     price: "",
   });
 
-  // On first mount, load courses from dummy data
+  // 🔹 Fetch all courses from Firestore (Real-time sync)
   useEffect(() => {
-    setCoursesList(dummyCourses);
-    setFilteredCourses(dummyCourses); // Show all courses initially
+    const coursesRef = collection(db, "courses");
+    const unsubscribe = onSnapshot(coursesRef, (snapshot) => {
+      const coursesData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setCoursesList(coursesData);
+      setFilteredCourses(coursesData); // Initially, show all courses
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
   }, []);
 
-  // Whenever filters change, update the filtered courses
+  // 🔹 Fetch enrolled courses for the given studentId
+  useEffect(() => {
+    if (!studentId) return;
+
+    const fetchEnrolledCourses = async () => {
+      const enrolled = await getEnrolledCourses(studentId);
+      setEnrolledCourses(enrolled);
+    };
+
+    fetchEnrolledCourses();
+  }, [studentId]);
+
+  // 🔹 Apply filters whenever filter criteria change
   useEffect(() => {
     let filtered = [...coursesList];
 
@@ -28,7 +55,7 @@ const useCourses = () => {
     if (courseFilters.instructor) {
       filtered = filtered.filter((course) =>
         course.instructor
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(courseFilters.instructor.toLowerCase())
       );
     }
@@ -36,7 +63,7 @@ const useCourses = () => {
     // Filter by skill (matches any skill in the course's skills array)
     if (courseFilters.skill) {
       filtered = filtered.filter((course) =>
-        course.skills.some((skill) =>
+        course.skills?.some((skill) =>
           skill.toLowerCase().includes(courseFilters.skill.toLowerCase())
         )
       );
@@ -46,7 +73,7 @@ const useCourses = () => {
     if (courseFilters.duration) {
       filtered = filtered.filter((course) =>
         course.duration
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(courseFilters.duration.toLowerCase())
       );
     }
@@ -54,22 +81,63 @@ const useCourses = () => {
     // Filter by price
     if (courseFilters.price) {
       filtered = filtered.filter((course) =>
-        course.price.includes(courseFilters.price)
+        course.price?.includes(courseFilters.price)
       );
     }
 
     setFilteredCourses(filtered);
   }, [courseFilters, coursesList]);
 
-  // Separate courses based on their status
+  // 🔹 Separate available courses
   const exploreCourses = filteredCourses.filter(
     (course) => course.status === "Available"
   );
-  const enrolledCourses = filteredCourses.filter(
-    (course) => course.status === "Enrolled" || course.status === "Completed"
-  );
 
-  return { exploreCourses, enrolledCourses, setCourseFilters };
+  // 🔹 Function to enroll in a course
+  const enroll = async (courseId) => {
+    if (!studentId) {
+      console.error("No student ID provided!");
+      return false;
+    }
+
+    const success = await enrollInCourse(courseId, studentId);
+    if (success) {
+      // Refresh enrolled courses list
+      const enrolled = await getEnrolledCourses(studentId);
+      setEnrolledCourses(enrolled);
+    }
+    return success;
+  };
+
+  // 🔹 Function to withdraw from a course
+  const withdraw = async (courseId) => {
+    if (!studentId) {
+      console.error("No student ID provided!");
+      return false;
+    }
+
+    const success = await withdrawFromCourse(courseId, studentId);
+    if (success) {
+      // Refresh enrolled courses list
+      const enrolled = await getEnrolledCourses(studentId);
+      setEnrolledCourses(enrolled);
+    }
+    return success;
+  };
+
+  // 🔹 Function to fetch course details using studentService
+  const fetchCourseDetails = async (courseId) => {
+    return await getCourseDetails(courseId);
+  };
+
+  return {
+    exploreCourses,
+    enrolledCourses,
+    setCourseFilters,
+    enroll,
+    withdraw,
+    fetchCourseDetails, // Add fetchCourseDetails to the returned object
+  };
 };
 
 export default useCourses;

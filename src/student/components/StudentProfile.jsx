@@ -9,33 +9,47 @@ import {
   Tabs,
 } from "@nextui-org/react";
 import { Edit2, Plus, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getStudentById, updateStudentProfile } from "../../services/studentService";
+import { useAuth } from "../../context/AuthContext";
 
 export default function StudentProfile() {
   const [selectedTab, setSelectedTab] = useState("about");
   const [isEditing, setIsEditing] = useState(false);
   const [newSkill, setNewSkill] = useState("");
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-  const [profile, setProfile] = useState({
-    studentId: "student_001",
-    name: "John Doe",
-    email: "johndoe@example.com",
-    profileImage: "https://avatar.iran.liara.run/public/38",
-    phone: "+91 9876543210",
-    location: "Mumbai, India",
-    education: {
-      university: "IIT Bombay",
-      degree: "B.Tech in Computer Science",
-      graduationYear: 2025,
-    },
-    skills: ["React.js", "Node.js", "Firebase", "MongoDB"],
-    resumeLink: "https://example.com/resume.pdf",
-  });
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const data = await getStudentById(user.uid);
+      if (data) {
+        setProfile(data);
+      }
+      setLoading(false);
+    };
 
-  const handleEditToggle = () => {
+    fetchProfile();
+  }, [user.uid]);
+
+  if (loading) {
+    return <div className="text-center text-lg">Loading profile...</div>;
+  }
+
+  if (!profile) {
+    return <div className="text-center text-red-500">Failed to load profile.</div>;
+  }
+
+  // Toggle Edit Mode & Save Changes
+  const handleEditToggle = async () => {
+    if (isEditing) {
+      await updateStudentProfile(user.uid, profile);
+    }
     setIsEditing(!isEditing);
   };
 
+  // Handle Input Changes for Text Fields
   const handleInputChange = (field, value) => {
     setProfile((prev) => ({
       ...prev,
@@ -43,48 +57,71 @@ export default function StudentProfile() {
     }));
   };
 
+  // Handle Input Changes for Nested Fields (Education)
+  const handleNestedInputChange = (field, value) => {
+    setProfile((prev) => ({
+      ...prev,
+      education: {
+        ...prev.education,
+        [field]: value,
+      },
+    }));
+  };
+
+  // Handle Skill Input
   const handleSkillChange = (e) => setNewSkill(e.target.value);
 
+  // Add Skill
   const addSkill = () => {
     if (newSkill.trim() !== "") {
       setProfile((prev) => ({
         ...prev,
-        skills: [...prev.skills, newSkill],
+        skills: [...(prev.skills || []), newSkill], // Ensure skills is an array
       }));
       setNewSkill("");
     }
   };
 
+  // Remove Skill
   const removeSkill = (skillToRemove) => {
     setProfile((prev) => ({
       ...prev,
-      skills: prev.skills.filter((skill) => skill !== skillToRemove),
+      skills: (prev.skills || []).filter((skill) => skill !== skillToRemove),
     }));
-  };
-
-  const handleLogout = () => {
-    console.log("User logged out"); // Replace with actual logout logic
-    // Example: Clear token, redirect to login, etc.
   };
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
       <Card>
         <CardBody className="text-center">
-          <Avatar className="w-24 h-24 mx-auto" src={profile.profileImage} />
+          <Avatar className="w-24 h-24 mx-auto" src={profile.profileImage || "https://avatar.iran.liara.run/public/38"} />
+          
+          {/* Editable Name */}
           {isEditing ? (
             <Input
               className="mt-3"
-              value={profile.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
+              value={profile.firstName}
+              onChange={(e) => handleInputChange("firstName", e.target.value)}
             />
           ) : (
-            <h1 className="text-2xl font-bold mt-4">{profile.name}</h1>
+            <h1 className="text-2xl font-bold mt-4">{profile.firstName + " " + profile.lastName}</h1>
           )}
-          <p className="text-default-500">
-            {profile.education.degree} - {profile.education.university}
-          </p>
-          <p className="text-default-500">Graduation: {profile.education.graduationYear}</p>
+
+          {/* Editable Education Details */}
+          {isEditing ? (
+            <>
+              <Input className="mt-2" placeholder="Degree" value={profile.education?.degree || ""} onChange={(e) => handleNestedInputChange("degree", e.target.value)} />
+              <Input className="mt-2" placeholder="University" value={profile.education?.university || ""} onChange={(e) => handleNestedInputChange("university", e.target.value)} />
+              <Input className="mt-2" placeholder="Graduation Year" value={profile.education?.graduationYear || ""} onChange={(e) => handleNestedInputChange("graduationYear", e.target.value)} />
+            </>
+          ) : (
+            <>
+              <p className="text-default-500">{profile.education?.degree} - {profile.education?.university}</p>
+              <p className="text-default-500">Graduation: {profile.education?.graduationYear}</p>
+            </>
+          )}
+
+          {/* Edit Profile Button */}
           <Button
             color={isEditing ? "success" : "primary"}
             variant="flat"
@@ -94,52 +131,27 @@ export default function StudentProfile() {
           >
             {isEditing ? "Save Changes" : "Edit Profile"}
           </Button>
-
-          <Button
-            color="danger"
-            variant="flat"
-            className="mt-4"
-            onPress={handleLogout}
-          >
-            Logout
-          </Button>
-
-          
         </CardBody>
-        
       </Card>
 
       <Tabs selectedKey={selectedTab} onSelectionChange={setSelectedTab} variant="underlined">
+        {/* About Section */}
         <Tab key="about" title="About">
           <Card>
             <CardBody className="space-y-4">
-              <Input
-                label="Email"
-                value={profile.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                readOnly={!isEditing}
-              />
-              <Input
-                label="Phone"
-                value={profile.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                readOnly={!isEditing}
-              />
-              <Input
-                label="Location"
-                value={profile.location}
-                onChange={(e) => handleInputChange("location", e.target.value)}
-                readOnly={!isEditing}
-              />
+              <Input label="Email" value={profile.email} readOnly />
+              <Input label="Phone" value={profile.phone} readOnly={!isEditing} onChange={(e) => handleInputChange("phone", e.target.value)} />
+              <Input label="Location" value={profile.location} readOnly={!isEditing} onChange={(e) => handleInputChange("location", e.target.value)} />
             </CardBody>
           </Card>
         </Tab>
 
+        {/* Skills Section */}
         <Tab key="skills" title="Skills">
           <Card>
             <CardBody>
               <div className="flex flex-wrap gap-2">
-                {profile.skills.map((skill, index) => (
+                {(profile.skills || []).map((skill, index) => (
                   <Chip key={index} variant="flat" color="primary" className="flex items-center">
                     {skill}
                     {isEditing && (
@@ -169,6 +181,7 @@ export default function StudentProfile() {
           </Card>
         </Tab>
 
+        {/* Resume Section */}
         <Tab key="resume" title="Resume">
           <Card>
             <CardBody>
