@@ -1,6 +1,8 @@
 import React from "react";
 
 const CourseCard = ({ course, isEnrolled, onEnroll, onWithdraw }) => {
+
+
   return (
     <div className="bg-gray-100 shadow-lg rounded-xl p-4 w-[300px] sm:w-80 md:w-96 mx-auto">
       {/* Instructor Info */}
@@ -18,12 +20,17 @@ const CourseCard = ({ course, isEnrolled, onEnroll, onWithdraw }) => {
 
       {/* Skills */}
       <div className="mt-3 flex flex-wrap gap-1 sm:gap-2">
-        {course.skills.map((skill, index) => (
-          <span key={index} className="bg-gray-200 text-xs sm:text-sm px-2 py-1 rounded-full">
-            {skill}
-          </span>
-        ))}
+        {Array.isArray(course.skills) && course.skills.length > 0 ? (
+          course.skills.map((skill, index) => (
+            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-md">
+              {skill}
+            </span>
+          ))
+        ) : (
+          <span className="text-gray-500 text-sm">No skills listed</span>
+        )}
       </div>
+
 
       {/* Course Info */}
       <div className="mt-4 flex justify-between text-center">

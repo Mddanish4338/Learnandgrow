@@ -1,12 +1,12 @@
 import { useState } from "react";
 
 const JobApplyModal = ({ isOpen, onClose, job, onApply }) => {
-  
+
   const [resume, setResume] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [linkedinProfile, setLinkedinProfile] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   if (!isOpen || !job) return null;
   const handleSubmit = async () => {
     if (!resume) {
@@ -42,15 +42,17 @@ const JobApplyModal = ({ isOpen, onClose, job, onApply }) => {
 
         {/* Job Details */}
         <div className="space-y-2 text-gray-700">
-          <p><strong>Location:</strong> {job.location}</p>
-          <p><strong>Job Type:</strong> {job.jobType}</p>
-          <p><strong>Duration:</strong> {job.duration}</p>
-          <p><strong>Salary/Stipend:</strong> {job.salary}</p>
-          <p><strong>Openings:</strong> {job.openings} positions</p>
-          <p><strong>Start Date:</strong> {job.startDate}</p>
-          <p><strong>Deadline:</strong> {job.applicationDeadline}</p>
-          <p><strong>Skills Required:</strong> {job.skills.join(", ")}</p>
-          <p><strong>Perks:</strong> {job.perks.join(", ")}</p>
+          <p><strong>Location:</strong> {job.location || "Not specified"}</p>
+          <p><strong>Job Type:</strong> {job.jobType || "Not specified"}</p>
+          <p><strong>Duration:</strong> {job.duration || "Not specified"}</p>
+          <p><strong>Salary/Stipend:</strong> {job.salary ? `₹${job.salary}` : "Not specified"}</p>
+          <p><strong>Openings:</strong> {job.openings ? `${job.openings} positions` : "Not specified"}</p>
+
+          <p><strong>Start Date:</strong> {job.startDate?.seconds ? new Date(job.startDate.seconds * 1000).toLocaleDateString() : "Not specified"}</p>
+          <p><strong>Deadline:</strong> {job.applicationDeadline?.seconds ? new Date(job.applicationDeadline.seconds * 1000).toLocaleDateString() : "Not specified"}</p>
+
+          <p><strong>Skills Required:</strong> {Array.isArray(job.skills) && job.skills.length > 0 ? job.skills.join(", ") : "Not specified"}</p>
+          <p><strong>Perks:</strong> {Array.isArray(job.perks) && job.perks.length > 0 ? job.perks.join(", ") : "Not specified"}</p>
 
           {/* About Company */}
           <p className="mt-2"><strong>About {job.company}:</strong></p>

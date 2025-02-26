@@ -63,8 +63,10 @@ const JobCard = ({ job }) => {
             </div>
           </div>
 
-          {/* Posted time */}
-          <p className="text-xs text-green-500 mt-2">{job.posted}</p>
+          <p className="text-xs text-green-500 mt-2">
+            {job.posted?.seconds ? new Date(job.posted.seconds * 1000).toLocaleDateString() : "Unknown Date"}
+          </p>
+
 
           {/* Apply Button */}
           <button
