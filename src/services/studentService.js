@@ -44,6 +44,11 @@ export const updateStudentProfile = async (studentId, updatedData) => {
 //apply for a job
 export const applyForJob = async (jobId, studentId, applicationData) => {
   try {
+    if (!jobId || !studentId || !applicationData) {
+      console.error("Invalid data: jobId, studentId, or applicationData is missing");
+      return false;
+    }
+
     const studentRef = doc(db, "students", studentId);
     const studentSnap = await getDoc(studentRef);
 
@@ -53,22 +58,31 @@ export const applyForJob = async (jobId, studentId, applicationData) => {
     }
 
     const studentData = studentSnap.data();
+
+    // Construct full name from firstName and lastName
+    const fullName = `${studentData.firstName || ""} ${studentData.lastName || ""}`.trim() || "Unknown";
+
+    // Ensure all required fields have valid values
     const candidateData = {
       id: studentId,
-      name: studentData.name,
-      email: studentData.email,
+      name: fullName,
+      email: studentData.email || "No Email",
       status: "applied",
       skills: studentData.skills || [],
-      profilePic: studentData.profilePic || "",
       appliedAt: new Date().toISOString(),
-      coverLetter: applicationData.coverLetter || "",
-      resume: applicationData.resume || "",
-      linkedinProfile: applicationData.linkedinProfile || "",
+      resume: applicationData.resume || "", // Resume link
+      coverLetter: applicationData.coverLetter || "", // Cover letter (string)
+      linkedinProfile: applicationData.linkedinProfile || "", // LinkedIn profile link
     };
+
+    // Remove undefined values before sending to Firestore
+    const sanitizedCandidateData = Object.fromEntries(
+      Object.entries(candidateData).filter(([_, value]) => value !== undefined)
+    );
 
     const jobRef = doc(db, "jobs", jobId);
     await updateDoc(jobRef, {
-      candidates: arrayUnion(candidateData),
+      candidates: arrayUnion(sanitizedCandidateData),
     });
 
     console.log("Student applied for the job successfully!");
@@ -78,20 +92,30 @@ export const applyForJob = async (jobId, studentId, applicationData) => {
     return false;
   }
 };
+
 //fetch all applied jobs
 export const getAppliedJobs = async (studentId) => {
   try {
-    const jobsRef = collection(db, "jobs");
-    const q = query(
-      jobsRef,
-      where("candidates", "array-contains", { id: studentId })
-    );
-    const querySnapshot = await getDocs(q);
+    if (!studentId) {
+      console.error("Student ID is missing!");
+      return [];
+    }
 
-    const appliedJobs = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    // Fetch all jobs
+    const jobsRef = collection(db, "jobs");
+    const querySnapshot = await getDocs(jobsRef);
+
+    if (querySnapshot.empty) {
+      console.log("No jobs found.");
+      return [];
+    }
+
+    // Filter jobs where candidates array contains studentId
+    const appliedJobs = querySnapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter((job) =>
+        job.candidates?.some((candidate) => candidate.id === studentId)
+      );
 
     return appliedJobs;
   } catch (error) {
@@ -136,10 +160,20 @@ export const enrollInCourse = async (courseId, studentId) => {
     }
 
     const studentData = studentSnap.data();
+
+    // ✅ Ensure required fields are present
+    if (!studentData.firstName || !studentData.lastName || !studentData.email) {
+      console.error("Missing required student data:", studentData);
+      return false;
+    }
+
     const enrollmentData = {
       id: studentId,
-      name: studentData.name,
-      email: studentData.email,
+      name: `${studentData.firstName.trim()} ${studentData.lastName.trim()}`, // Combine first and last name
+      email: studentData.email || "Unknown",
+      university: studentData.education?.university || "Unknown", // Ensure university data exists
+      degree: studentData.education?.degree || "Unknown", // Ensure degree data exists
+      graduationYear: studentData.education?.graduationYear || "Unknown", // Ensure graduation year exists
       enrolledAt: Timestamp.now(),
     };
 
@@ -155,6 +189,7 @@ export const enrollInCourse = async (courseId, studentId) => {
     return false;
   }
 };
+
 //withdraw from a course
 export const withdrawFromCourse = async (courseId, studentId) => {
   try {
@@ -191,16 +226,16 @@ export const withdrawFromCourse = async (courseId, studentId) => {
 export const getEnrolledCourses = async (studentId) => {
   try {
     const coursesRef = collection(db, "courses");
-    const q = query(
-      coursesRef,
-      where("students", "array-contains", { id: studentId })
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(coursesRef); // Fetch all courses
 
-    const courses = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const courses = querySnapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .filter((course) =>
+        course.students?.some((student) => student.id === studentId) // Filter manually
+      );
 
     return courses;
   } catch (error) {
@@ -208,6 +243,7 @@ export const getEnrolledCourses = async (studentId) => {
     return [];
   }
 };
+
 //get course details
 export const getCourseDetails = async (courseId) => {
   try {

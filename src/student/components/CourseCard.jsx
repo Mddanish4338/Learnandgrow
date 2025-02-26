@@ -1,8 +1,4 @@
-import React from "react";
-
-const CourseCard = ({ course, isEnrolled, onEnroll, onWithdraw }) => {
-
-
+const CourseCard = ({ course, studentId, onEnroll, isEnrolled }) => {
   return (
     <div className="bg-gray-100 shadow-lg rounded-xl p-4 w-[300px] sm:w-80 md:w-96 mx-auto">
       {/* Instructor Info */}
@@ -20,17 +16,17 @@ const CourseCard = ({ course, isEnrolled, onEnroll, onWithdraw }) => {
 
       {/* Skills */}
       <div className="mt-3 flex flex-wrap gap-1 sm:gap-2">
-        {Array.isArray(course.skills) && course.skills.length > 0 ? (
-          course.skills.map((skill, index) => (
-            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-md">
-              {skill}
-            </span>
-          ))
+        {course.skills ? (
+          (Array.isArray(course.skills) ? course.skills : course.skills.split(","))
+            .map((skill, index) => (
+              <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-md">
+                {skill.trim()}
+              </span>
+            ))
         ) : (
           <span className="text-gray-500 text-sm">No skills listed</span>
         )}
       </div>
-
 
       {/* Course Info */}
       <div className="mt-4 flex justify-between text-center">
@@ -55,21 +51,16 @@ const CourseCard = ({ course, isEnrolled, onEnroll, onWithdraw }) => {
           + Chat with Tutor
         </a>
 
-        {isEnrolled ? (
-          <button
-            onClick={() => onWithdraw(course.id)}
-            className="bg-red-600 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-red-500 transition-all ease-in duration-300"
-          >
-            Withdraw
-          </button>
-        ) : (
-          <button
-            onClick={() => onEnroll(course.id)}
-            className="bg-blue-600 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-500 transition-all ease-in duration-300"
-          >
-            Enroll
-          </button>
-        )}
+        {/* Enroll Button */}
+        <button
+          onClick={() => !isEnrolled && studentId && onEnroll(course.id, studentId)}
+          className={`text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg transition-all ease-in duration-300
+            ${isEnrolled ? "bg-green-100 text-green-700 font-thin cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-500"}
+          `}
+          disabled={isEnrolled || !studentId}
+        >
+          {isEnrolled ? "Enrolled" : "Enroll"}
+        </button>
       </div>
     </div>
   );

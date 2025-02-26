@@ -14,6 +14,7 @@ import {
   getAllCourses,
   getAllJobs,
   getAppliedJobs,
+  enrollInCourse,
 } from "../services/studentService";
 
 const Dashboard = () => {
@@ -26,6 +27,11 @@ const Dashboard = () => {
   const [allCourses, setAllCourses] = useState([]); // This holds ALL courses before filtering
   const [courseFilters, setCourseFilters] = useState({});
   const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [filteredEnrolledCourses, setFilteredEnrolledCourses] = useState([]);
+
+
+
 
   const [jobFilters, setJobFilters] = useState({});
   const [jobs, setJobs] = useState([]);
@@ -76,29 +82,48 @@ const Dashboard = () => {
 
   // Fetch enrolled courses & applied jobs when student data is available
   useEffect(() => {
-    if (!student?.id) return;
+    if (!student?.uid) return;
+
     const fetchUserData = async () => {
-      const [enrolled, applied] = await Promise.all([
-        getEnrolledCourses(student.id),
-        getAppliedJobs(student.id),
-      ]);
-      setEnrolledCourses(enrolled || []);
-      setAppliedJobs(applied || []);
+      try {
+        const [enrolled, applied] = await Promise.all([
+          getEnrolledCourses(student.uid),
+          getAppliedJobs(student.uid), // ✅ Fetch applied jobs
+        ]);
+
+        setEnrolledCourses(enrolled || []);
+        setAppliedJobs(applied || []);
+
+        console.log("Applied Jobs:", applied); // Check if data is fetched
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     };
+
     fetchUserData();
-  }, [student?.id]);
+  }, [student?.uid]);
+
+
 
   // Filter courses based on applied filters
   useEffect(() => {
-    setCourses(
-      allCourses.filter((course) => {
-        if (courseFilters.instructor && !course.instructor.toLowerCase().includes(courseFilters.instructor.toLowerCase())) {
+    // Common filter function
+    const filterCourses = (courseList) => {
+      return courseList.filter((course) => {
+        // Ensure course.instructor exists before calling .toLowerCase()
+        if (
+          courseFilters.instructor &&
+          (!course.instructor || !course.instructor.toLowerCase().includes(courseFilters.instructor.toLowerCase()))
+        ) {
           return false;
         }
 
-        // Ensure skills exist and is an array before using `.some()`
-        if (courseFilters.skill && (!Array.isArray(course.skills) || !course.skills.some(skill => skill.toLowerCase().includes(courseFilters.skill.toLowerCase())))) {
-          return false;
+        // Ensure skills exist and is an array or string before using .some()
+        if (courseFilters.skill) {
+          const skillsArray = Array.isArray(course.skills) ? course.skills : course.skills?.split(",") || [];
+          if (!skillsArray.some((skill) => skill.toLowerCase().includes(courseFilters.skill.toLowerCase()))) {
+            return false;
+          }
         }
 
         if (courseFilters.duration && parseInt(course.duration) !== parseInt(courseFilters.duration)) {
@@ -112,9 +137,17 @@ const Dashboard = () => {
         }
 
         return true;
-      })
-    );
-  }, [courseFilters, allCourses]);
+      });
+    };
+
+    // Apply filter to "Explore" tab courses
+    setFilteredCourses(filterCourses(allCourses));
+
+    // Apply filter to "Enrolled" tab courses
+    setFilteredEnrolledCourses(filterCourses(enrolledCourses));
+
+  }, [courseFilters, allCourses, enrolledCourses]);
+
   // allCourses dependency ensures filtering is applied correctly
 
 
@@ -122,14 +155,29 @@ const Dashboard = () => {
   useEffect(() => {
     setJobs(
       allJobs.filter((job) => {
-        if (jobFilters.location && !job.location.toLowerCase().includes(jobFilters.location.toLowerCase())) return false;
-        if (jobFilters.duration && !job.duration.toLowerCase().includes(jobFilters.duration.toLowerCase())) return false;
-        if (jobFilters.salary && job.salary < parseInt(jobFilters.salary)) return false;
-        if (jobFilters.profile && !job.profile.toLowerCase().includes(jobFilters.profile.toLowerCase())) return false;
+        if (jobFilters.location && !job.location.toLowerCase().includes(jobFilters.location.toLowerCase()))
+          return false;
+
+        if (jobFilters.duration && !job.duration.toLowerCase().includes(jobFilters.duration.toLowerCase()))
+          return false;
+
+        if (jobFilters.salary && job.salary < parseInt(jobFilters.salary))
+          return false;
+        // Filtering based on skillsRequired (checking if any selected skill matches)
+        if (jobFilters.skills && jobFilters.skills.length > 0) {
+          const jobSkills = job.skillsRequired || []; // Ensure it's an array
+          const hasMatchingSkill = jobFilters.skills.some((skill) =>
+            jobSkills.includes(skill) // Direct match check
+          );
+          if (!hasMatchingSkill) return false;
+        }
+
         return true;
       })
     );
   }, [jobFilters, allJobs]);
+
+
 
   // Render filter component based on active tab
   const renderFilterContent = () =>
@@ -146,6 +194,31 @@ const Dashboard = () => {
     };
     return messages[activeTab] || messages.dashboard;
   };
+
+  const handleEnroll = async (courseId, studentId) => {
+    if (!studentId) {
+      console.error("Student ID is missing!");
+      return;
+    }
+
+    // Check if student is already enrolled in this course
+    const isAlreadyEnrolled = enrolledCourses.some((course) => course.id === courseId);
+
+    if (isAlreadyEnrolled) {
+      console.warn("Student is already enrolled in this course!");
+      return; // Prevent duplicate enrollment
+    }
+
+    // Proceed with enrollment
+    const success = await enrollInCourse(courseId, studentId);
+    if (success) {
+      // Refresh enrolled courses
+      const updatedEnrolledCourses = await getEnrolledCourses(studentId);
+      setEnrolledCourses(updatedEnrolledCourses || []);
+    }
+  };
+
+
 
   return (
     <div className="flex flex-col h-screen">
@@ -165,64 +238,133 @@ const Dashboard = () => {
 
         {/* Dashboard Stats */}
         {activeTab === "dashboard" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
-            {/* Progress Card */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Enrolled Courses Card */}
             <div className="bg-white p-6 rounded-xl shadow-md flex flex-col">
-              <h3 className="text-lg font-semibold">Course Progress</h3>
-              <div className="mt-4">
-                <p className="text-sm text-gray-600">Enrolled Courses: 5</p>
-                <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
-                  <div
-                    className="bg-blue-500 h-3 rounded-full"
-                    style={{ width: "65%" }}
-                  ></div>
-                </div>
-                <p className="text-sm mt-1 text-gray-600">65% Completed</p>
-              </div>
+              <h3 className="text-lg font-semibold">Enrolled Courses</h3>
+              <p className="text-2xl font-bold text-blue-600 mt-2">{enrolledCourses.length}</p>
             </div>
 
-            {/* Stats Cards */}
-            <div className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center items-center">
-              <h3 className="text-lg font-semibold">Completed Courses</h3>
-              <p className="text-2xl font-bold text-blue-600 mt-2">8</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center items-center">
-              <h3 className="text-lg font-semibold">Active Enrollments</h3>
-              <p className="text-2xl font-bold text-green-600 mt-2">3</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center items-center">
-              <h3 className="text-lg font-semibold">Saved Jobs</h3>
-              <p className="text-2xl font-bold text-yellow-600 mt-2">12</p>
+            {/* Applied Jobs Card */}
+            <div className="bg-white p-6 rounded-xl shadow-md flex flex-col">
+              <h3 className="text-lg font-semibold">Applied Jobs</h3>
+              <p className="text-2xl font-bold text-green-600 mt-2">{appliedJobs.length}</p>
             </div>
           </div>
         )}
+
 
         {/* Explore Courses */}
         {activeTab === "explore" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-              {courses.map((course) => <CourseCard key={course.id} course={course} />)}
+              {filteredCourses
+                .filter((course) => !enrolledCourses.some((c) => c.id === course.id)) // Exclude enrolled courses
+                .map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    studentId={student?.uid}
+                    onEnroll={handleEnroll}
+                    isEnrolled={false}
+                  />
+                ))}
             </div>
-            <CourseFilter setCourseFilters={setCourseFilters} />
+            <div className="hidden md:block w-full">
+              <div className="sticky top-1 p-4">
+                <CourseFilter setCourseFilters={setCourseFilters} />
+              </div>
+            </div>
           </div>
         )}
+
+
+        {activeTab === "enrolled" && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+              {filteredEnrolledCourses.length > 0 ? (
+                filteredEnrolledCourses.map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    studentId={student?.uid}
+                    isEnrolled={true}
+                  />
+                ))
+              ) : (
+                <p className="text-gray-500">You are not enrolled in any courses.</p>
+              )}
+            </div>
+            <div className="hidden md:block w-full">
+              <div className="sticky top-1 p-4">
+                <CourseFilter setCourseFilters={setCourseFilters} />
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Jobs Section */}
         {activeTab === "jobs" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 flex flex-col gap-6 mt-6">
-              {jobs.map((job) => <JobCard key={job.id} job={job} />)}
+              {jobs.length > 0 ? (
+                jobs
+                  .filter((job) =>
+                    !appliedJobs.some(appliedJob => appliedJob.id === job.id) // Exclude applied jobs
+                  )
+                  .map((job) => (
+                    <JobCard key={job.id} job={job} studentId={student?.uid} />
+                  ))
+              ) : (
+                <div className="text-center text-gray-500 text-lg font-semibold mt-10">
+                  🚀 No jobs available yet. Check back later!
+                </div>
+              )}
             </div>
-            <JobFilter setFilters={setJobFilters} />
+
+            {/* Job Filters Sidebar */}
+            <div className="hidden md:block w-full">
+              <div className="sticky top-1 p-4">
+                <JobFilter setFilters={setJobFilters} />
+              </div>
+            </div>
           </div>
         )}
+
+
+
+
+
+        {activeTab === "applied" && (
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 sm:mb-10">
+            {/* Applied Jobs List */}
+            <div className="md:col-span-2 flex flex-col gap-6 mt-6">
+              {appliedJobs.length > 0 ? (
+                <AppliedJobs jobs={appliedJobs} />
+              ) : (
+                <div className="text-center text-gray-500 text-lg font-semibold mt-10">
+                  🚀 No applied jobs yet. Apply Before!
+                </div>
+              )}
+            </div>
+
+            {/* Job Filters Sidebar (Only visible on larger screens) */}
+            <div className="hidden md:block w-full">
+              <div className="sticky top-1 p-4">
+                <JobFilter setFilters={setJobFilters} />
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Profile Section */}
         {activeTab === "profile" && (
           <div className="flex justify-center mt-6">
-            <StudentProfile />
+            <div className="w-full max-w-4xl bg-white p-6 rounded-xl shadow-md">
+              <StudentProfile />
+            </div>
           </div>
         )}
       </div>

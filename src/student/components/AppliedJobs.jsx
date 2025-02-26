@@ -1,53 +1,57 @@
-import useAppliedJobs from "../../hooks/useAppliedJobs";
+import { useEffect, useState } from "react";
+import { getCompanyById } from "../../services/companyService";
 
 const AppliedJobs = ({ jobs }) => {
-  // Fetch jobs from hook if not provided as props
-  const appliedJobs = useAppliedJobs() || jobs;
+  const [companyInfo, setCompanyInfo] = useState({});
+
+  useEffect(() => {
+    if (jobs.length > 0) {
+      jobs.forEach(async (job) => {
+        // console.log("Fetching company details for:", job.companyId);
+        if (job.companyId) {
+          try {
+            const company = await getCompanyById(job.companyId);
+            // console.log("Fetched company data:", company);
+            setCompanyInfo((prev) => ({ ...prev, [job.companyId]: company }));
+          } catch (error) {
+            console.error("Error fetching company:", error);
+          }
+        }
+      });
+    }
+  }, [jobs]);
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">Applied Jobs</h2>
-      {appliedJobs.length === 0 ? (
+      {jobs.length === 0 ? (
         <p className="text-gray-500">No applied jobs yet.</p>
       ) : (
         <div className="space-y-4">
-          {appliedJobs.map((job) => (
-            <div
-              key={job.id}
-              className="p-4 border bg-gray-100 rounded-lg shadow-sm"
-            >
+          {jobs.map((job) => (
+            <div key={job.id} className="p-4 border bg-gray-100 rounded-lg shadow-sm">
               <div className="flex items-center space-x-4">
                 {job.logo ? (
-                  <img src={job.logo} alt={job.company} className="w-10 h-10" />
+                  <img src={job.logo} alt={companyInfo[job.companyId]?.name || "Company"} className="w-10 h-10" />
                 ) : (
                   <div className="w-10 h-10 flex items-center justify-center bg-red-300 text-white rounded-full text-sm font-semibold">
-                    {job.company?.slice(0, 2).toUpperCase()}
+                    {companyInfo[job.companyId]?.name?.slice(0, 2).toUpperCase() || "NA"}
                   </div>
                 )}
                 <div>
-                  <h3 className="font-semibold">{job.title}</h3>
-                  <p className="text-gray-500">{job.company}</p>
-                  {job.status ? (
-                    <p className="text-sm text-blue-600">{job.status}</p>
-                  ) : (
-                    <p className="text-sm text-gray-400">
-                      Status: Not available
-                    </p>
-                  )}
+                  <h3 className="font-semibold">{job.jobTitle || "Job Title"}</h3>
+                  <p className="text-gray-500">
+                    {companyInfo[job.companyId]?.name || "Unknown Company"}
+                  </p>
+                  <p className="text-sm text-blue-600">{job.status || "Applied"}</p>
                 </div>
               </div>
 
               {/* Applied Date Section */}
-              <div className="mt-2">
-                {job.appliedDate ? (
-                  <p className="text-sm text-gray-500">
-                    Applied: {job.appliedDate}
-                  </p>
-                ) : (
-                  <p className="text-sm text-gray-400">
-                    Applied date not available
-                  </p>
-                )}
+              <div className="mt-3">
+                <p className="text-sm text-gray-500">
+                  <span className="text-green-400">Applied:</span> {job.postedAt ? new Date(job.postedAt.seconds * 1000).toLocaleDateString() : "N/A"}
+                </p>
               </div>
             </div>
           ))}
