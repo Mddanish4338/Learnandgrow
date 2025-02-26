@@ -105,9 +105,29 @@ export const getEnrolledStudents = async (courseId) => {
   }
 };
 //update teacher's profile
+// export const updateTeacherProfile = async (teacherId, updatedData) => {
+//   try {
+//     const teacherRef = doc(db, "trainers", teacherId);
+//     const teacherSnap = await getDoc(teacherRef);
+
+//     if (!teacherSnap.exists()) {
+//       console.error("Teacher profile not found!");
+//       return false;
+//     }
+
+//     await updateDoc(teacherRef, updatedData);
+//     console.log("Teacher profile updated successfully!");
+//     return true;
+//   } catch (error) {
+//     console.error("Error updating teacher profile:", error);
+//     return false;
+//   }
+// };
+
+
 export const updateTeacherProfile = async (teacherId, updatedData) => {
   try {
-    const teacherRef = doc(db, "teachers", teacherId);
+    const teacherRef = doc(db, "trainers", teacherId);
     const teacherSnap = await getDoc(teacherRef);
 
     if (!teacherSnap.exists()) {
@@ -115,7 +135,12 @@ export const updateTeacherProfile = async (teacherId, updatedData) => {
       return false;
     }
 
-    await updateDoc(teacherRef, updatedData);
+    // Filter out undefined fields
+    const filteredData = Object.fromEntries(
+      Object.entries(updatedData).filter(([_, value]) => value !== undefined)
+    );
+
+    await updateDoc(teacherRef, filteredData);
     console.log("Teacher profile updated successfully!");
     return true;
   } catch (error) {
@@ -123,10 +148,12 @@ export const updateTeacherProfile = async (teacherId, updatedData) => {
     return false;
   }
 };
+
+
 //get teacher's profile
 export const getTeacherProfile = async (teacherId) => {
   try {
-    const teacherRef = doc(db, "teachers", teacherId);
+    const teacherRef = doc(db, "trainers", teacherId);
     const teacherSnap = await getDoc(teacherRef);
 
     if (!teacherSnap.exists()) {
