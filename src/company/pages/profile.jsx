@@ -16,6 +16,7 @@ import {
   ModalBody,
   ModalFooter,
   Spinner,
+  cn,
 } from "@nextui-org/react";
 import {
   Briefcase,
@@ -33,7 +34,6 @@ import {
   Check,
   X,
   LogOut,
-  Link,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
@@ -42,6 +42,7 @@ import {
   updateCompanyProfile,
 } from "../../services/companyService";
 import EmployeeBenefitsSection from "../components/employeeBenefitSection";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("about");
@@ -213,11 +214,13 @@ export default function Profile() {
             <Button
               as={Link}
               to="/"
-              color="default"
-              variant="flat"
-              startContent={<LogOut size={16} />}
-              onPress={() => logout()}
-              className="bg-gray-200 text-gray-700"
+              variant="light"
+              color="danger"
+              className={cn(
+                "w-full justify-start gap-2 hover:bg-danger/10 transition-colors"
+              )}
+              startContent={<LogOut size={20} />}
+              onPress={() => logout}
             >
               Logout
             </Button>
