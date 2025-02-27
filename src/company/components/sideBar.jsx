@@ -1,4 +1,4 @@
-import { Button, Divider, Tooltip } from "@nextui-org/react";
+import { Button, cn, Divider, Tooltip } from "@nextui-org/react";
 import {
   Briefcase,
   FilePlus,
@@ -9,11 +9,13 @@ import {
 import React, { useState } from "react";
 import { ImBooks } from "react-icons/im";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { logoutUser } from "../../services/authService";
 
 function Sidebar({ setActivePage }) {
   const location = useLocation();
   const basePath = "/company-panel";
-
+  const { logout } = useAuth();
   const navigation = [
     {
       name: "Dashboard",
@@ -55,6 +57,7 @@ function Sidebar({ setActivePage }) {
             return (
               <Button
                 as={Link}
+                key={item.name}
                 to={item.path}
                 onPress={() => setActivePage(item.name)}
                 variant={isActive ? "flat" : "light"}
@@ -83,12 +86,17 @@ function Sidebar({ setActivePage }) {
       <div className="p-4 mt-auto">
         <Divider className="mb-4" />
         <Button
+          as={Link}
+          to="/"
           variant="light"
           color="danger"
-          className={`w-full justify-start gap-2 hover:bg-danger/10 transition-colors`}
+          className={cn(
+            "w-full justify-start gap-2 hover:bg-danger/10 transition-colors"
+          )}
           startContent={<LogOut size={20} />}
+          onPress={() => logout}
         >
-          {"Logout"}
+          Logout
         </Button>
       </div>
     </div>

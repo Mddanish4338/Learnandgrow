@@ -21,8 +21,7 @@ export const registerUser = async (
     );
     const user = userCredential.user;
 
-    // it will set userProfile
-    const userRef = doc(db, role + "s", user.uid); // Collection name: students, teachers, companies
+    const userRef = doc(db, role + "s", user.uid);
     await setDoc(userRef, {
       id: user.uid,
       email,

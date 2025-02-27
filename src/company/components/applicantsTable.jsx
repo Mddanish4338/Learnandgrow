@@ -16,9 +16,11 @@ import {
   TableRow,
   User,
   Tooltip,
+  Avatar,
 } from "@nextui-org/react";
 import { Eye, Mail, Download, UserCheck, UserX, Copy } from "lucide-react";
 import React, { useState } from "react";
+import { updateCandidateStatus } from "../../services/companyService";
 
 const statusColorMap = {
   Pending: "warning",
@@ -27,10 +29,14 @@ const statusColorMap = {
   Rejected: "danger",
 };
 
-const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
+const ApplicantsTable = ({
+  applicants = [],
+  isMobile,
+  jobId,
+  updateCounts,
+}) => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [updatedApplicants, setUpdatedApplicants] = useState(applicants);
-
   const columns = isMobile
     ? [
         { key: "name", label: "APPLICANT" },
@@ -39,9 +45,7 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
       ]
     : [
         { key: "applicant", label: "APPLICANT" },
-        { key: "appliedDate", label: "APPLIED DATE" },
         { key: "status", label: "STATUS" },
-        { key: "experience", label: "EXPERIENCE" },
         { key: "actions", label: "" },
       ];
 
@@ -66,37 +70,26 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
     document.body.removeChild(link);
   };
 
-  const handleShortlist = (applicantId) => {
-    if (handleAction) {
-      // If parent component provides handleAction, use it
-      handleAction({
-        type: "shortlist",
+  const handleUpdateStatus = async (applicantId, newStatus) => {
+    try {
+      const success = await updateCandidateStatus(
+        jobId,
         applicantId,
-      });
-    } else {
-      // Otherwise, handle it internally
-      setUpdatedApplicants(
-        updatedApplicants.map((app) =>
-          app.id === applicantId ? { ...app, status: "Shortlisted" } : app
-        )
+        newStatus
       );
-    }
-  };
 
-  const handleReject = (applicantId) => {
-    if (handleAction) {
-      // If parent component provides handleAction, use it
-      handleAction({
-        type: "reject",
-        applicantId,
-      });
-    } else {
-      // Otherwise, handle it internally
-      setUpdatedApplicants(
-        updatedApplicants.map((app) =>
-          app.id === applicantId ? { ...app, status: "Rejected" } : app
-        )
-      );
+      if (success) {
+        setUpdatedApplicants(
+          updatedApplicants.map((app) =>
+            app.id === applicantId ? { ...app, hiringStatus: newStatus } : app
+          )
+        );
+        console.log(`Candidate ${applicantId} status updated to ${newStatus}`);
+      } else {
+        console.error("Failed to update candidate status.");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
     }
   };
 
@@ -109,7 +102,7 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
             description={applicant.email}
             avatarProps={{
               src: applicant.avatar,
-              radius: "lg",
+              radius: "full",
             }}
           />
         );
@@ -130,11 +123,11 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
         return (
           <Chip
             size="sm"
-            color={statusColorMap[applicant.status]}
+            color={statusColorMap[applicant.hiringStatus]}
             variant="flat"
             className="text-xs"
           >
-            {applicant.status}
+            {applicant.hiringStatus}
           </Chip>
         );
 
@@ -154,10 +147,10 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
               <PopoverContent>
                 <div className="w-80 p-4">
                   <div className="flex gap-4 items-start mb-4">
-                    <img
+                    <Avatar
                       src={applicant.avatar}
-                      alt={`${applicant.name} profile`}
-                      className="w-16 h-16 rounded-md object-cover"
+                      radius="full"
+                      className="w-12 h-12 object-cover"
                     />
                     <div>
                       <h3 className="text-lg font-semibold">
@@ -171,14 +164,18 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
                     </div>
                   </div>
                   <Divider className="my-2" />
-                  <div className="my-2">
-                    <p className="text-sm font-medium">Experience</p>
-                    <p className="text-sm">{applicant.experience}</p>
-                  </div>
-                  <div className="my-2">
-                    <p className="text-sm font-medium">Education</p>
-                    <p className="text-sm">{applicant.education}</p>
-                  </div>
+                  {applicant.experience && (
+                    <div className="my-2">
+                      <p className="text-sm font-medium">Experience</p>
+                      <p className="text-sm">{applicant.experience}</p>
+                    </div>
+                  )}
+                  {applicant.education && (
+                    <div className="my-2">
+                      <p className="text-sm font-medium">Education</p>
+                      <p className="text-sm">{applicant.education}</p>
+                    </div>
+                  )}
                   <div className="my-2">
                     <p className="text-sm font-medium">Skills</p>
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -190,15 +187,15 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
                     </div>
                   </div>
                   <div className="my-2">
-                    <p className="text-sm font-medium">Summary</p>
-                    <p className="text-sm">{applicant.summary}</p>
+                    <p className="text-sm font-medium">Cover Letter</p>
+                    <p className="text-sm">{applicant.coverLetter}</p>
                   </div>
                   <div className="mt-4 flex justify-between">
                     <Chip
-                      color={statusColorMap[applicant.status]}
+                      color={statusColorMap[applicant.hiringStatus]}
                       variant="flat"
                     >
-                      {applicant.status}
+                      {applicant.hiringStatus}
                     </Chip>
                     <Button
                       isIconOnly
@@ -250,8 +247,8 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
                 variant="light"
                 size="sm"
                 color="success"
-                onPress={() => handleShortlist(applicant.id)}
-                isDisabled={applicant.status === "Shortlisted"}
+                onPress={() => handleUpdateStatus(applicant.id, "Shortlisted")}
+                isDisabled={applicant.hiringStatus === "Shortlisted"}
               >
                 <UserCheck className="w-4 h-4" />
               </Button>
@@ -263,8 +260,8 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
                 variant="light"
                 size="sm"
                 color="danger"
-                onPress={() => handleReject(applicant.id)}
-                isDisabled={applicant.status === "Rejected"}
+                onPress={() => handleUpdateStatus(applicant.id, "Rejected")}
+                isDisabled={applicant.hiringStatus === "Rejected"}
               >
                 <UserX className="w-4 h-4" />
               </Button>
@@ -278,18 +275,18 @@ const ApplicantsTable = ({ applicants = [], isMobile, handleAction }) => {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full overflow-y-hidden">
       <CardHeader className="md:px-6 py-2 md:py-4">
         <h3 className="text-sm md:text-lg font-semibold">Applicants</h3>
       </CardHeader>
-      <CardBody className="md:px-4 overflow-hidden">
+      <CardBody className="md:px-4">
         <div className="w-full overflow-x-scroll">
           <Table
             aria-label="Applicants table"
             selectionMode="none"
             classNames={{
               base: "w-full min-w-full p-0",
-              table: "p-0 overflow-x-visible",
+              table: "p-0",
               th: "text-xs md:text-sm py-2 md:px-4",
               td: "text-xs md:text-sm py-2 p-0 md:px-4",
               tbody: "p-0 gap-x-1",

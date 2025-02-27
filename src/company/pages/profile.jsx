@@ -9,6 +9,13 @@ import {
   Tab,
   Tabs,
   Textarea,
+  useDisclosure,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Spinner,
 } from "@nextui-org/react";
 import {
   Briefcase,
@@ -23,43 +30,101 @@ import {
   Phone,
   Twitter,
   Users,
+  Check,
+  X,
+  LogOut,
+  Link,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import {
+  getCompanyById,
+  updateCompanyProfile,
+} from "../../services/companyService";
+import EmployeeBenefitsSection from "../components/employeeBenefitSection";
+
 export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("about");
   const [isEditing, setIsEditing] = useState(false);
-  const { user } = useAuth();
-  const [profile, setProfile] = useState({
-    name: "TechCorp Solutions",
-    industry: "Information Technology",
-    size: "500-1000 employees",
-    location: "New York, NY",
-    website: "www.techcorp.com",
-    email: "careers@techcorp.com",
-    phone: "+1 (555) 123-4567",
-    about:
-      "TechCorp Solutions is a leading provider of innovative technology solutions. We specialize in software development, cloud computing, and digital transformation services for enterprises worldwide.",
-    benefits: [
-      "Health Insurance",
-      "401(k) Plan",
-      "Remote Work Options",
-      "Professional Development",
-      "Flexible Hours",
-      "Gym Membership",
-    ],
-    socialLinks: {
-      facebook: "facebook.com/techcorp",
-      twitter: "twitter.com/techcorp",
-      linkedin: "linkedin.com/company/techcorp",
-    },
-  });
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [originalProfile, setOriginalProfile] = useState(null);
+  const { user, logout } = useAuth();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const fetchProfile = async () => {
+      setLoading(true);
+      const companyData = await getCompanyById(user?.uid);
+      if (companyData) {
+        setProfile(companyData);
+        setOriginalProfile(JSON.parse(JSON.stringify(companyData))); // Deep copy
+        console.log(companyData);
+      }
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, [user?.uid]);
 
   const handleEditToggle = () => {
-    setIsEditing(!isEditing);
     if (isEditing) {
-      // Save changes logic would go here
-      console.log("Saving profile changes:", profile);
+      onOpen();
+    } else {
+      setIsEditing(true);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setProfile(JSON.parse(JSON.stringify(originalProfile)));
+    setIsEditing(false);
+  };
+
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    onClose();
+
+    try {
+      const updatedData = {};
+      Object.keys(profile).forEach((key) => {
+        if (profile[key] !== null && profile[key] !== undefined) {
+          if (
+            typeof profile[key] === "object" &&
+            !Array.isArray(profile[key])
+          ) {
+            updatedData[key] = {};
+            Object.keys(profile[key]).forEach((nestedKey) => {
+              if (
+                profile[key][nestedKey] !== null &&
+                profile[key][nestedKey] !== undefined
+              ) {
+                updatedData[key][nestedKey] = profile[key][nestedKey];
+              }
+            });
+          } else {
+            updatedData[key] = profile[key];
+          }
+        }
+      });
+
+      const success = await updateCompanyProfile(user.uid, updatedData);
+      if (success) {
+        setOriginalProfile(JSON.parse(JSON.stringify(profile)));
+        console.log("Profile updated successfully");
+      } else {
+        console.error("Failed to update profile");
+        setProfile(JSON.parse(JSON.stringify(originalProfile)));
+      }
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      setProfile(JSON.parse(JSON.stringify(originalProfile)));
+    } finally {
+      setIsSaving(false);
+      setIsEditing(false);
     }
   };
 
@@ -84,8 +149,24 @@ export default function Profile() {
     background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        Profile not found
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-7xl p-4 md:p-6 space-y-6 bg-gray-50 rounded-xl">
+    <div className="max-w-7xl md:p-6 space-y-6 bg-gray-50 rounded-xl">
       <Card className="w-full border-none shadow-lg overflow-visible">
         <CardBody className="relative p-0">
           <div className="relative h-56 rounded-t-xl overflow-hidden mb-16">
@@ -94,47 +175,84 @@ export default function Profile() {
               style={gradientStyle}
             ></div>
             <Image
-              src="/api/placeholder/1200/400"
+              src={profile?.coverImage || ""}
               alt="Company cover"
               classNames={{
                 img: "object-cover w-full h-full",
               }}
             />
-            <Button
-              isIconOnly
-              className="absolute top-4 right-4 z-20 bg-white/30 backdrop-blur-md"
-              variant="flat"
-              size="sm"
-            >
-              <Camera size={16} className="text-white" />
-            </Button>
+            {isEditing && (
+              <Button
+                isIconOnly
+                className="absolute top-4 right-4 z-20 bg-white/30 backdrop-blur-md"
+                variant="flat"
+                size="sm"
+              >
+                <Camera size={16} className="text-white" />
+              </Button>
+            )}
           </div>
 
           <div className="absolute top-36 left-6 flex items-end gap-4 z-20">
-            <Avatar
-              className="w-28 h-28 text-large border-4 border-white shadow-lg"
-              src="/api/placeholder/150/150"
+            <img
+              className="w-28 h-28 rounded-full text-large border-4 border-white shadow-lg"
+              src={profile?.logo || "https://via.placeholder.com/112"}
+              alt={profile?.name || "Company logo"}
             />
             <div className="mb-2">
               <h1 className="text-2xl font-bold text-gray-800">
-                {profile.name}
+                {profile?.name || "Company Name"}
               </h1>
-              <p className="text-indigo-600 font-medium">{profile.industry}</p>
+              <p className="text-indigo-600 font-medium">
+                {profile?.industry || ""}
+              </p>
             </div>
           </div>
 
-          <div className="flex justify-end mt-4 p-4">
+          <div className="flex justify-end mt-4 p-4 gap-2">
             <Button
-              color={isEditing ? "success" : "primary"}
-              variant={isEditing ? "solid" : "flat"}
-              startContent={isEditing ? undefined : <Edit2 size={16} />}
-              onPress={handleEditToggle}
-              className={
-                isEditing ? "bg-emerald-500" : "bg-indigo-500 text-white"
-              }
+              as={Link}
+              to="/"
+              color="default"
+              variant="flat"
+              startContent={<LogOut size={16} />}
+              onPress={() => logout()}
+              className="bg-gray-200 text-gray-700"
             >
-              {isEditing ? "Save Changes" : "Edit Profile"}
+              Logout
             </Button>
+            {isEditing ? (
+              <div className="flex gap-2">
+                <Button
+                  color="danger"
+                  variant="flat"
+                  startContent={<X size={16} />}
+                  onPress={handleCancelEdit}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  color="success"
+                  variant="solid"
+                  startContent={<Check size={16} />}
+                  onPress={handleEditToggle}
+                  isLoading={isSaving}
+                  className="bg-emerald-500 text-white"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            ) : (
+              <Button
+                color="primary"
+                variant="flat"
+                startContent={<Edit2 size={16} />}
+                onPress={handleEditToggle}
+                className="bg-indigo-500 text-white"
+              >
+                Edit Profile
+              </Button>
+            )}
           </div>
         </CardBody>
       </Card>
@@ -164,9 +282,9 @@ export default function Profile() {
                 <div className="space-y-4">
                   <Input
                     label="Company Name"
-                    value={profile.name}
+                    value={profile?.name || ""}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    readOnly={!isEditing}
+                    isReadOnly={!isEditing}
                     variant="bordered"
                     className="bg-white"
                     classNames={{
@@ -179,11 +297,12 @@ export default function Profile() {
                   />
                   <Input
                     label="Location"
-                    value={profile.location}
+                    placeholder="Add location"
+                    value={profile?.location || ""}
                     onChange={(e) =>
                       handleInputChange("location", e.target.value)
                     }
-                    readOnly={!isEditing}
+                    isReadOnly={!isEditing}
                     variant="bordered"
                     className="bg-white"
                     classNames={{
@@ -196,11 +315,12 @@ export default function Profile() {
                   />
                   <Input
                     label="Website"
-                    value={profile.website}
+                    value={profile?.website || ""}
+                    placeholder="Add a link to your website"
                     onChange={(e) =>
                       handleInputChange("website", e.target.value)
                     }
-                    readOnly={!isEditing}
+                    isReadOnly={!isEditing}
                     variant="bordered"
                     className="bg-white"
                     classNames={{
@@ -215,9 +335,9 @@ export default function Profile() {
                 <div className="space-y-4">
                   <Input
                     label="Company Size"
-                    value={profile.size}
+                    value={profile?.size || ""}
                     onChange={(e) => handleInputChange("size", e.target.value)}
-                    readOnly={!isEditing}
+                    isReadOnly={!isEditing}
                     variant="bordered"
                     className="bg-white"
                     classNames={{
@@ -230,9 +350,9 @@ export default function Profile() {
                   />
                   <Input
                     label="Email"
-                    value={profile.email}
+                    value={profile?.email || ""}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    readOnly={!isEditing}
+                    isReadOnly={!isEditing}
                     variant="bordered"
                     className="bg-white"
                     classNames={{
@@ -245,9 +365,10 @@ export default function Profile() {
                   />
                   <Input
                     label="Phone"
-                    value={profile.phone}
+                    value={profile?.phone || ""}
+                    placeholder="Add your phone number"
                     onChange={(e) => handleInputChange("phone", e.target.value)}
-                    readOnly={!isEditing}
+                    isReadOnly={!isEditing}
                     variant="bordered"
                     className="bg-white"
                     classNames={{
@@ -263,9 +384,11 @@ export default function Profile() {
 
               <Textarea
                 label="About Company"
-                value={profile.about}
-                onChange={(e) => handleInputChange("about", e.target.value)}
-                readOnly={!isEditing}
+                value={profile?.description || ""}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
+                isReadOnly={!isEditing}
                 variant="bordered"
                 className="bg-white"
                 classNames={{
@@ -275,22 +398,7 @@ export default function Profile() {
                 minRows={4}
               />
 
-              <div className="bg-indigo-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-3 text-indigo-700">
-                  Employee Benefits
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {profile.benefits.map((benefit, index) => (
-                    <Chip
-                      key={index}
-                      variant="flat"
-                      className="bg-indigo-100 text-indigo-700 font-medium"
-                    >
-                      {benefit}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
+              <EmployeeBenefitsSection profile={profile} />
             </CardBody>
           </Card>
         </Tab>
@@ -327,9 +435,10 @@ export default function Profile() {
             <CardBody className="space-y-4 p-6">
               <Input
                 label="Facebook"
-                value={profile.socialLinks.facebook}
+                value={profile?.socialLinks?.facebook || ""}
+                placeholder="Add facebook url"
                 onChange={(e) => handleSocialChange("facebook", e.target.value)}
-                readOnly={!isEditing}
+                isReadOnly={!isEditing}
                 variant="bordered"
                 className="bg-white"
                 classNames={{
@@ -340,9 +449,10 @@ export default function Profile() {
               />
               <Input
                 label="Twitter"
-                value={profile.socialLinks.twitter}
+                value={profile?.socialLinks?.twitter || ""}
+                placeholder="Add twitter url"
                 onChange={(e) => handleSocialChange("twitter", e.target.value)}
-                readOnly={!isEditing}
+                isReadOnly={!isEditing}
                 variant="bordered"
                 className="bg-white"
                 classNames={{
@@ -353,9 +463,10 @@ export default function Profile() {
               />
               <Input
                 label="LinkedIn"
-                value={profile.socialLinks.linkedin}
+                value={profile?.socialLinks?.linkedin || ""}
+                placeholder="Add linkedin url"
                 onChange={(e) => handleSocialChange("linkedin", e.target.value)}
-                readOnly={!isEditing}
+                isReadOnly={!isEditing}
                 variant="bordered"
                 className="bg-white"
                 classNames={{
@@ -368,6 +479,32 @@ export default function Profile() {
           </Card>
         </Tab>
       </Tabs>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            Confirm Changes
+          </ModalHeader>
+          <ModalBody>
+            <p>
+              Are you sure you want to save these changes to your company
+              profile?
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" variant="light" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button
+              color="success"
+              onPress={handleSaveChanges}
+              className="bg-emerald-500 text-white"
+            >
+              Save Changes
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

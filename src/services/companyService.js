@@ -6,9 +6,11 @@ import {
   collection,
   Timestamp,
   query,
-  getDocs,
   where,
+  getDocs,
   deleteDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { db } from "../utils/firebase";
 
@@ -49,12 +51,14 @@ export const updateCompanyProfile = async (companyId, updatedData) => {
   }
 };
 //create job post
-export const createJobPost = async (jobData) => {
+export const createJobPost = async (jobData, companyId) => {
   try {
     const newJob = {
       ...jobData,
+      companyId: companyId,
       postedAt: Timestamp.now(),
       candidates: [],
+      status: "Active",
     };
 
     const docRef = await addDoc(collection(db, "jobs"), newJob);
@@ -84,6 +88,25 @@ export const getCompanyJobs = async (companyId) => {
     return [];
   }
 };
+//get job by job Id
+export const getJobById = async (jobId) => {
+  if (!jobId) return null;
+
+  try {
+    const jobDoc = await getDoc(doc(db, "jobs", jobId));
+
+    if (jobDoc.exists()) {
+      return { id: jobDoc.id, ...jobDoc.data() };
+    } else {
+      console.warn("Job not found!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching job:", error);
+    throw error;
+  }
+};
+
 // update the status of candidate
 export const updateCandidateStatus = async (jobId, candidateId, status) => {
   try {
@@ -99,7 +122,9 @@ export const updateCandidateStatus = async (jobId, candidateId, status) => {
     const candidates = jobData.candidates || [];
 
     const updatedCandidates = candidates.map((candidate) =>
-      candidate.id === candidateId ? { ...candidate, status } : candidate
+      candidate.id === candidateId
+        ? { ...candidate, hiringStatus: status }
+        : candidate
     );
 
     await updateDoc(jobRef, { candidates: updatedCandidates });
@@ -160,16 +185,18 @@ export const getCompanyProfileCompletion = async (companyId) => {
       "location",
       "website",
       "phone",
+      "benefits",
     ];
 
     const optionalFields = ["logo", "description", "linkedin", "twitter"];
 
-    let filledRequired = requiredFields.filter(
-      (field) => companyData[field]
-    ).length;
-    let filledOptional = optionalFields.filter(
-      (field) => companyData[field]
-    ).length;
+    const isFilled = (field) => {
+      const value = companyData[field];
+      return Array.isArray(value) ? value.length > 0 : Boolean(value);
+    };
+
+    let filledRequired = requiredFields.filter(isFilled).length;
+    let filledOptional = optionalFields.filter(isFilled).length;
 
     let requiredPercentage = (filledRequired / requiredFields.length) * 80;
     let optionalPercentage = (filledOptional / optionalFields.length) * 20;
@@ -180,4 +207,47 @@ export const getCompanyProfileCompletion = async (companyId) => {
     console.error("Error calculating profile completion:", error);
     return 0;
   }
+};
+
+export const addBenefit = async (companyId, benefit) => {
+  try {
+    const companyRef = doc(db, "companies", companyId);
+
+    await updateDoc(companyRef, {
+      benefits: arrayUnion(benefit),
+    });
+
+    console.log(`Benefit "${benefit}" added successfully.`);
+    return true;
+  } catch (error) {
+    console.error("Error adding benefit:", error);
+    return false;
+  }
+};
+export const removeBenefit = async (companyId, benefit) => {
+  try {
+    const companyRef = doc(db, "companies", companyId);
+
+    await updateDoc(companyRef, {
+      benefits: arrayRemove(benefit),
+    });
+
+    console.log(`Benefit "${benefit}" removed successfully.`);
+    return true;
+  } catch (error) {
+    console.error("Error removing benefit:", error);
+    return false;
+  }
+};
+export const getBenefits = async (companyId) => {
+  try {
+    const docRef = doc(db, "companies", companyId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data().benefits || [];
+    }
+  } catch (error) {
+    console.error("Error fetching benefits:", error);
+  }
+  return [];
 };

@@ -18,7 +18,7 @@ function App() {
           <Route path="/mentor-dashboard" element={<MentorDashboard />} />
           <Route path="/company-panel/*" element={<CompanyApp />} />
           <Route path="/student-panel/*" element={<StudentDashBoard />} />
-          <Route path="/*" element={<LandingRoutes />} />
+          <Route path="/" element={<LandingRoutes />} />
         </Routes>
       </AuthProvider>
     </>
@@ -26,3 +26,41 @@ function App() {
 }
 
 export default App;
+
+// function App() {
+//   return (
+//     <AuthProvider>
+//       <Routes>
+//         <Route path="/auth/*" element={<AuthRoute />} />
+//         <Route path="/" element={<LandingRoutes />} />
+
+//         <Route
+//           path="/mentor-dashboard/*"
+//           element={
+//             <ProtectedRoute
+//               element={<MentorDashboard />}
+//               allowedRole="mentor"
+//             />
+//           }
+//         />
+//         <Route
+//           path="/company-panel/*"
+//           element={
+//             <ProtectedRoute element={<CompanyApp />} allowedRole="companies" />
+//           }
+//         />
+//         <Route
+//           path="/student-panel/*"
+//           element={
+//             <ProtectedRoute
+//               element={<StudentDashBoard />}
+//               allowedRole="students"
+//             />
+//           }
+//         />
+
+//         <Route path="*" element={<Navigate to="/" replace />} />
+//       </Routes>
+//     </AuthProvider>
+//   );
+// }

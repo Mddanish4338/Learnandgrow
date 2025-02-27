@@ -72,6 +72,7 @@ export const applyForJob = async (jobId, studentId, applicationData) => {
       name: fullName,
       email: studentData.email || "No Email",
       status: "applied",
+      hiringStatus: "New",
       skills: studentData.skills || [],
       appliedAt: new Date().toISOString(),
       resume: applicationData.resume || "", // Resume link

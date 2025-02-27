@@ -5,6 +5,7 @@ import {
   CardHeader,
   Chip,
   Progress,
+  Spinner,
 } from "@nextui-org/react";
 import {
   ArrowRight,
@@ -15,9 +16,14 @@ import {
   UserCheck,
   Users,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import { useAuth } from "../../context/AuthContext";
+import {
+  getCompanyJobs,
+  getCompanyProfileCompletion,
+} from "../../services/companyService";
+import useJobStats from "../../hooks/useJobStats";
 const StatCard = ({
   title,
   value,
@@ -107,6 +113,45 @@ const JobPerformanceCard = ({ title, applicants, value, color }) => (
 );
 
 const DashBoard = () => {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [profileCompletion, setProfileCompletion] = useState();
+  useEffect(() => {
+    const fetchJobs = async () => {
+      setLoading(true);
+      const companyData = await getCompanyJobs(user?.uid);
+      const completion = await getCompanyProfileCompletion(user?.uid);
+      if (companyData) {
+        setJobs(companyData);
+      }
+      if (completion) {
+        setProfileCompletion(completion);
+        console.log(completion);
+      }
+      setLoading(false);
+    };
+    fetchJobs();
+  }, []);
+  const {
+    activeJobs,
+    trendText,
+    totalApplicants,
+    applicantTrend,
+    totalOpenings,
+    openingsTrend,
+  } = useJobStats(jobs);
+  const closingSoonJobs = jobs.filter(
+    (job) =>
+      job.deadline && new Date(job.deadline) - new Date() <= 18 * 60 * 60 * 1000
+  ).length;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center w-full h-full">
+        <Spinner />;
+      </div>
+    );
+  }
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
       <div className="p-3 md:p-8 max-w-7xl mx-auto space-y-6">
@@ -134,33 +179,33 @@ const DashBoard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           <StatCard
             title="Active Jobs"
-            value="5"
+            value={activeJobs}
             icon={Briefcase}
             description="Currently active job postings"
-            trend="+2 this week"
+            trend={trendText}
             color="primary"
           />
           <StatCard
             title="Total Applicants"
-            value="25"
+            value={totalApplicants}
             icon={Users}
             description="Applicants across all positions"
-            trend="+8 new"
+            trend={applicantTrend}
             color="success"
           />
           <StatCard
             title="Closing Soon"
-            value="3"
+            value={closingSoonJobs}
             icon={Clock}
             description="Jobs closing in 48 hours"
             color="warning"
           />
           <StatCard
-            title="Average Response"
-            value="85%"
+            title="Total Openings"
+            value={totalOpenings}
             icon={BarChart2}
-            description="Application response rate"
-            trend="+5%"
+            description="Openings across all positions"
+            trend={openingsTrend}
             color="secondary"
           />
         </div>
@@ -179,24 +224,35 @@ const DashBoard = () => {
               </div>
             </CardHeader>
             <CardBody className="gap-4 px-6 pb-6">
-              <JobPerformanceCard
-                title="Senior Developer"
-                applicants="15"
-                value={75}
-                color="success"
-              />
-              <JobPerformanceCard
-                title="UX Designer"
-                applicants="12"
-                value={60}
-                color="primary"
-              />
-              <JobPerformanceCard
-                title="Marketing Specialist"
-                applicants="8"
-                value={40}
-                color="warning"
-              />
+              {jobs.map((job) => {
+                const shortlistedApplicants =
+                  job.candidates?.filter(
+                    (candidate) => candidate.hiringStatus === "Shortlisted"
+                  ).length || 0;
+
+                const openings = job.openings || 1;
+
+                const value = Math.min(
+                  Math.round((shortlistedApplicants / openings) * 100),
+                  100
+                );
+
+                const getColor = (percentage) => {
+                  if (percentage >= 70) return "success";
+                  if (percentage >= 40) return "primary";
+                  return "warning";
+                };
+
+                return (
+                  <JobPerformanceCard
+                    key={job.id}
+                    title={job.jobTitle}
+                    applicants={`${shortlistedApplicants} / ${openings}`}
+                    value={value}
+                    color={getColor(value)}
+                  />
+                );
+              })}
             </CardBody>
           </Card>
 
@@ -210,7 +266,7 @@ const DashBoard = () => {
               </CardHeader>
               <CardBody className="gap-4 px-6 pb-6">
                 <Progress
-                  value={80}
+                  value={profileCompletion}
                   color="primary"
                   size="md"
                   radius="sm"
@@ -218,10 +274,12 @@ const DashBoard = () => {
                   showValueLabel={true}
                 />
                 <div className="flex justify-between items-center">
-                  <span className="text-default-500 text-sm">80% complete</span>
+                  <span className="text-default-500 text-sm">
+                    {profileCompletion}% complete
+                  </span>
                   <Button
                     as={Link}
-                    to="/profile"
+                    to="/company-panel/profile"
                     size="sm"
                     color="primary"
                     variant="flat"

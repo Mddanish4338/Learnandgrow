@@ -19,7 +19,7 @@ function CompanyApp() {
       {!isMobile && <Sidebar setActivePage={setActivePage} />}
 
       <div
-        className={`flex-1 p-4 md:p-6 mb-32 ${!isMobile ? "ml-64" : "mb-28"}`}
+        className={`flex-1 overflow-x-hidden ${!isMobile ? "ml-64" : "mb-28"}`}
       >
         <Routes>
           <Route path="dashboard" element={<DashBoard />} />
@@ -27,7 +27,10 @@ function CompanyApp() {
           <Route path="manage-jobs" element={<ManageJobs />} />
           <Route path="manage-jobs/job-details/:id" element={<ViewDetails />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="/" element={<Navigate to="dashboard" />} />
+          <Route
+            path="*"
+            element={<Navigate to="/company-panel/dashboard" replace />}
+          />
         </Routes>
       </div>
 

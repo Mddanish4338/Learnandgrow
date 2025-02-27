@@ -1,48 +1,50 @@
-import React, { useState } from "react";
 import {
+  Button,
   Card,
   CardBody,
   CardHeader,
+  Chip,
+  Divider,
   Input,
-  Button,
   Select,
   SelectItem,
   Textarea,
-  Chip,
-  Divider,
 } from "@nextui-org/react";
 import {
   Briefcase,
-  Building2,
-  MapPin,
+  Calendar,
   Clock,
+  Code,
   DollarSign,
   FileText,
-  Code,
-  ArrowRight,
+  MapPin,
   Tag,
-  Calendar,
+  Users,
 } from "lucide-react";
+import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { createJobPost } from "../../services/companyService";
 
 const jobTypes = [
-  { value: "full-time", label: "Full-time" },
-  { value: "part-time", label: "Part-time" },
-  { value: "contract", label: "Contract" },
-  { value: "internship", label: "Internship" },
-  { value: "remote", label: "Remote" },
+  { value: "Full-time", label: "Full-time" },
+  { value: "Part-time", label: "Part-time" },
+  { value: "Contract", label: "Contract" },
+  { value: "Internship", label: "Internship" },
+  { value: "Remote", label: "Remote" },
 ];
 
 export default function PostJob() {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     jobTitle: "",
-    companyName: "",
     location: "",
     jobType: "",
     salary: "",
     jobDescription: "",
     skillsRequired: "",
-    time: "",
+    duration: "",
     department: "",
+    openings: "",
   });
 
   const [skills, setSkills] = useState([]);
@@ -70,27 +72,35 @@ export default function PostJob() {
     setSkills(skills.filter((skill) => skill !== skillToRemove));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     const submissionData = {
       ...formData,
-      jobType: Array.from(formData.jobType)[0],
+      jobType: Array.isArray(formData.jobType)
+        ? formData.jobType[0]
+        : formData.jobType,
       skillsRequired: skills,
     };
-    console.log("Job posted:", submissionData);
-    setFormData({
-      jobTitle: "",
-      companyName: "",
-      location: "",
-      jobType: "",
-      salary: "",
-      jobDescription: "",
-      skillsRequired: "",
-      time: "",
-      department: "",
-    });
 
-    setSkills([]);
+    try {
+      await createJobPost(submissionData, user.uid);
+      setFormData({
+        jobTitle: "",
+        location: "",
+        jobType: "",
+        salary: "",
+        jobDescription: "",
+        skillsRequired: "",
+        applicationDeadline: "",
+        department: "",
+        openings: "",
+        duration: "",
+      });
+      setSkills([]);
+    } catch (error) {
+      console.error("Error posting job:", error);
+    }
   };
 
   return (
@@ -121,7 +131,6 @@ export default function PostJob() {
           <CardBody className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Job Title */}
                 <Input
                   label="Job Title"
                   placeholder="e.g., Senior Software Engineer"
@@ -136,28 +145,47 @@ export default function PostJob() {
                   }}
                   isRequired
                 />
-
-                {/* Company Name */}
                 <Input
-                  label="Company Name"
-                  placeholder="Your company name"
-                  value={formData.companyName}
-                  onChange={(e) => handleChange("companyName", e.target.value)}
-                  startContent={
-                    <Building2 className="w-4 h-4 text-default-400" />
-                  }
+                  label="Openings"
+                  type="number"
+                  placeholder="e.g., 5"
+                  value={formData.openings}
+                  onChange={(e) => handleChange("openings", e.target.value)}
+                  startContent={<Users className="w-4 h-4 text-default-400" />}
                   variant="bordered"
                   classNames={{
                     label: "text-default-600 font-medium",
                   }}
                   isRequired
                 />
-                {/* Time Field */}
+
                 <Input
+                  label="Duration"
+                  placeholder="e.g., 6 months"
+                  value={formData.duration}
+                  onChange={(e) => handleChange("duration", e.target.value)}
+                  startContent={<Clock className="w-4 h-4 text-default-400" />}
+                  variant="bordered"
+                  classNames={{
+                    label: "text-default-600 font-medium",
+                  }}
+                  isRequired
+                />
+
+                <Input
+                  type="date"
                   label="Application Deadline"
-                  placeholder="e.g., 30 days from now"
-                  value={formData.time}
-                  onChange={(e) => handleChange("time", e.target.value)}
+                  placeholder="Select a date"
+                  value={
+                    formData.applicationDeadline
+                      ? new Date(formData.applicationDeadline)
+                          .toISOString()
+                          .split("T")[0]
+                      : ""
+                  }
+                  onChange={(e) =>
+                    handleChange("applicationDeadline", e.target.value)
+                  }
                   startContent={
                     <Calendar className="w-4 h-4 text-default-400" />
                   }
@@ -167,7 +195,6 @@ export default function PostJob() {
                   }}
                 />
 
-                {/* Department Field */}
                 <Input
                   label="Department"
                   placeholder="e.g., Engineering"
@@ -180,7 +207,6 @@ export default function PostJob() {
                   }}
                 />
 
-                {/* Location */}
                 <Input
                   label="Location"
                   placeholder="e.g., New York, NY"
@@ -194,7 +220,6 @@ export default function PostJob() {
                   isRequired
                 />
 
-                {/* Job Type */}
                 <Select
                   label="Job Type"
                   placeholder="Select job type"
@@ -214,7 +239,6 @@ export default function PostJob() {
                   ))}
                 </Select>
 
-                {/* Salary */}
                 <Input
                   label="Salary Range"
                   placeholder="e.g., $80,000 - $100,000"
@@ -229,7 +253,6 @@ export default function PostJob() {
                   }}
                 />
 
-                {/* Skills */}
                 <Input
                   label="Skills Required"
                   placeholder="Add skills (separate with comma)"
@@ -243,7 +266,6 @@ export default function PostJob() {
                 />
               </div>
 
-              {/* Skills Chips */}
               {skills.length > 0 && (
                 <div className="flex flex-wrap gap-2 p-2 bg-gray-50 rounded-lg border border-gray-100">
                   <div className="w-full mb-1 text-sm text-default-600 font-medium">

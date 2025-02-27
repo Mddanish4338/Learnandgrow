@@ -1,39 +1,36 @@
-import React from "react";
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableColumn,
-  TableRow,
-  TableCell,
-  Chip,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
+  Badge,
   Button,
   Card,
-  CardHeader,
   CardBody,
-  Badge,
-  Avatar,
-  Tooltip,
+  CardHeader,
+  Chip,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
 } from "@nextui-org/react";
 import {
-  MoreVertical,
-  Eye,
-  Edit2,
-  Trash2,
   Briefcase,
-  MapPin,
   Calendar,
   Clock,
-  Users,
-  Filter,
-  Search,
+  Edit2,
+  Eye,
+  MapPin,
+  MoreVertical,
   Plus,
+  Trash2,
+  Users,
 } from "lucide-react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { deleteJobPost } from "../../services/companyService";
 
 const statusColorMap = {
   Active: "success",
@@ -58,7 +55,18 @@ const JobsTableWithCard = ({ jobs = [], isMobile, handleAction }) => {
         { key: "applicants", label: "APPLICANTS" },
         { key: "actions", label: "" },
       ];
-
+  const handleDeleteJob = async (jobId) => {
+    if (!jobId) {
+      console.error("Job ID is required!");
+      return;
+    }
+    try {
+      await deleteJobPost(jobId);
+      console.log(`Job post ${jobId} deleted successfully!`);
+    } catch (error) {
+      console.error("Error deleting job post:", error);
+    }
+  };
   const renderCell = (job, columnKey) => {
     switch (columnKey) {
       case "title":
@@ -68,12 +76,15 @@ const JobsTableWithCard = ({ jobs = [], isMobile, handleAction }) => {
               <Briefcase size={isMobile ? 14 : 18} className="text-primary" />
             </div>
             <div>
-              <div className="font-medium text-xs md:text-sm truncate">
-                {job.title}
+              <div className="md:font-medium text-xs md:text-sm truncate">
+                {job.jobTitle.length > 8
+                  ? `${job.jobTitle.slice(0, 8)}...`
+                  : job.jobTitle}
               </div>
-              {isMobile && job.department && (
+
+              {/* {isMobile && job.title && (
                 <div className="text-xs text-gray-500">{job.department}</div>
-              )}
+              )} */}
             </div>
           </div>
         );
@@ -104,27 +115,16 @@ const JobsTableWithCard = ({ jobs = [], isMobile, handleAction }) => {
             color={job.type === "Full Time" ? "secondary" : "default"}
           >
             <Clock size={12} className="mr-1" />
-            {job.type}
+            {job.jobType}
           </Chip>
         );
       case "posted":
         return (
           <div className="flex items-center gap-1.5">
             <Calendar size={14} className="text-gray-500" />
-            <Tooltip
-              content={`Posted on ${new Date(job.posted).toLocaleDateString(
-                "en-US",
-                {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }
-              )}`}
-            >
-              <span className="text-xs md:text-sm">
-                {formatTimeAgo(job.posted)}
-              </span>
-            </Tooltip>
+            <span className="text-xs md:text-sm">
+              {formatTimeAgo(job.postedAt)}
+            </span>
           </div>
         );
       case "status":
@@ -168,16 +168,10 @@ const JobsTableWithCard = ({ jobs = [], isMobile, handleAction }) => {
                   View Details
                 </DropdownItem>
                 <DropdownItem
-                  startContent={<Edit2 size={14} className="text-amber-500" />}
-                  onPress={() => handleAction("edit", job.id)}
-                >
-                  Edit Job
-                </DropdownItem>
-                <DropdownItem
                   startContent={<Trash2 size={14} />}
                   className="text-danger"
                   color="danger"
-                  onPress={() => handleAction("delete", job.id)}
+                  onPress={() => handleDeleteJob(job.id)}
                 >
                   Delete Job
                 </DropdownItem>
@@ -190,8 +184,14 @@ const JobsTableWithCard = ({ jobs = [], isMobile, handleAction }) => {
     }
   };
 
-  const formatTimeAgo = (dateString) => {
-    const date = new Date(dateString);
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp) return "Unknown"; // Handle missing date
+
+    // Firestore Timestamp check and conversion
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+
+    if (isNaN(date.getTime())) return "Invalid date"; // Handle invalid dates
+
     const now = new Date();
     const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
 

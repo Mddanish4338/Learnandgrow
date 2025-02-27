@@ -6,6 +6,7 @@ import {
   Input,
   Select,
   SelectItem,
+  Spinner,
 } from "@nextui-org/react";
 import {
   Briefcase,
@@ -21,54 +22,15 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useIsMobile from "../../hooks/useIsMobile";
 import JobsTable from "../components/jobsTable";
+import { getCompanyJobs } from "../../services/companyService";
+import { useAuth } from "../../context/AuthContext";
 
 const ManageJobs = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-
-  const [jobs] = useState([
-    {
-      id: 1,
-      title: "Senior Software Engineer",
-      department: "Engineering",
-      location: "New York, NY",
-      type: "Full-time",
-      posted: "2024-02-15",
-      status: "Active",
-      applicants: 12,
-    },
-    {
-      id: 2,
-      title: "UX Designer",
-      department: "Design",
-      location: "Remote",
-      type: "Contract",
-      posted: "2024-02-14",
-      status: "Active",
-      applicants: 8,
-    },
-    {
-      id: 3,
-      title: "Product Manager",
-      department: "Product",
-      location: "San Francisco, CA",
-      type: "Full-time",
-      posted: "2024-02-10",
-      status: "Closed",
-      applicants: 15,
-    },
-    {
-      id: 4,
-      title: "Marketing Specialist",
-      department: "Marketing",
-      location: "Chicago, IL",
-      type: "Part-time",
-      posted: "2024-02-16",
-      status: "Closed",
-      applicants: 0,
-    },
-  ]);
-
+  const { user } = useAuth();
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedType, setSelectedType] = useState("All");
@@ -76,6 +38,17 @@ const ManageJobs = () => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [activeFilters, setActiveFilters] = useState(0);
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const jobData = await getCompanyJobs(user.uid);
+        setJobs(jobData);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+      }
+    };
+    fetchJobs();
+  }, [jobs]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -85,7 +58,6 @@ const ManageJobs = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Count active filters
   useEffect(() => {
     let count = 0;
     if (selectedStatus !== "All") count++;
@@ -106,20 +78,28 @@ const ManageJobs = () => {
     setSelectedDepartment("All");
   };
 
-  // Get unique departments for filter dropdown
   const departments = ["All", ...new Set(jobs.map((job) => job.department))];
 
   const filteredJobs = jobs.filter((job) => {
     return (
       (selectedStatus === "All" || job.status === selectedStatus) &&
-      (selectedType === "All" || job.type === selectedType) &&
+      (selectedType === "All" ||
+        (job.jobType || "").toLowerCase() ===
+          (selectedType || "").toLowerCase()) &&
       (selectedDepartment === "All" || job.department === selectedDepartment) &&
       (debouncedSearchTerm === "" ||
-        job.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        job.department
+        (job.title || "")
           .toLowerCase()
           .includes(debouncedSearchTerm.toLowerCase()) ||
-        job.location.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
+        (job.department || "")
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase()) ||
+        (job.jobType || "")
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase()) ||
+        (job.location || "")
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase()))
     );
   });
 
@@ -128,14 +108,11 @@ const ManageJobs = () => {
       case "view":
         navigate(`/company-panel/manage-jobs/job-details/${jobId}`);
         break;
-      case "delete":
-        console.log(`Deleting job with id: ${jobId}`);
-        break;
-      default:
-        break;
     }
   };
-
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen px-2 md:px-6 pb-20 w-full max-w-full overflow-hidden space-y-4 md:space-y-6">
       <div className="flex flex-col gap-3 mt-6">
@@ -157,7 +134,7 @@ const ManageJobs = () => {
 
         <div className="w-full mt-2">
           <Input
-            placeholder="Search by job title, department, or location..."
+            placeholder="Search by job title, department, type, or location..."
             startContent={<Search size={16} className="text-default-400" />}
             endContent={
               searchTerm && (
@@ -301,6 +278,7 @@ const ManageJobs = () => {
                     <SelectItem key="Full-time">Full-time</SelectItem>
                     <SelectItem key="Part-time">Part-time</SelectItem>
                     <SelectItem key="Contract">Contract</SelectItem>
+                    <SelectItem key="Internship">Internship</SelectItem>
                   </Select>
 
                   <Select
