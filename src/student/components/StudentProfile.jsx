@@ -8,7 +8,7 @@ import {
   Tab,
   Tabs,
 } from "@nextui-org/react";
-import { Edit2, Plus, X } from "lucide-react";
+import { Edit2, Plus, Trash2, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { getStudentById, updateStudentProfile } from "../../services/studentService";
 import { useAuth } from "../../context/AuthContext";
@@ -25,13 +25,18 @@ export default function StudentProfile() {
     const fetchProfile = async () => {
       const data = await getStudentById(user.uid);
       if (data) {
-        setProfile(data);
+        setProfile({
+          ...data,
+          education: Array.isArray(data.education) ? data.education : [], // Ensure it's an array
+          experience: Array.isArray(data.experience) ? data.experience : [], // Ensure it's an array
+        });
       }
       setLoading(false);
     };
 
     fetchProfile();
   }, [user.uid]);
+
 
   if (loading) {
     return <div className="text-center text-lg">Loading profile...</div>;
@@ -44,10 +49,11 @@ export default function StudentProfile() {
   // Toggle Edit Mode & Save Changes
   const handleEditToggle = async () => {
     if (isEditing) {
-      await updateStudentProfile(user.uid, profile);
+      await updateStudentProfile(user.uid, profile); // Ensure profile updates with education and experience
     }
     setIsEditing(!isEditing);
   };
+
 
   // Handle Input Changes for Text Fields
   const handleInputChange = (field, value) => {
@@ -90,12 +96,50 @@ export default function StudentProfile() {
     }));
   };
 
+  const handleArrayChange = (field, index, key, value) => {
+    setProfile((prev) => {
+      const updatedArray = [...prev[field]];
+      updatedArray[index] = { ...updatedArray[index], [key]: value };
+      return { ...prev, [field]: updatedArray };
+    });
+  };
+
+  // Handle Education Changes
+  const addEducation = () => {
+    setProfile((prev) => ({
+      ...prev,
+      education: [...prev.education, { degree: "", university: "", graduationYear: "" }],
+    }));
+  };
+
+  // Handle Experience Changes
+  const addExperience = () => {
+    setProfile((prev) => ({
+      ...prev,
+      experience: [...prev.experience, { title: "", company: "", years: "" }],
+    }));
+  };
+
+  const deleteEducation = (index) => {
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      education: prevProfile.education.filter((_, i) => i !== index),
+    }));
+  };
+
+  const deleteExperience = (index) => {
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      experience: prevProfile.experience.filter((_, i) => i !== index),
+    }));
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
       <Card>
         <CardBody className="text-center">
           <Avatar className="w-24 h-24 mx-auto" src={profile.profileImage || "https://avatar.iran.liara.run/public/38"} />
-          
+
           {/* Editable Name */}
           {isEditing ? (
             <Input
@@ -107,19 +151,20 @@ export default function StudentProfile() {
             <h1 className="text-2xl font-bold mt-4">{profile.firstName + " " + profile.lastName}</h1>
           )}
 
-          {/* Editable Education Details */}
-          {isEditing ? (
+          {/* Display Latest Education Details (No Direct Editing) */}
+          {profile.education.length > 0 ? (
             <>
-              <Input className="mt-2" placeholder="Degree" value={profile.education?.degree || ""} onChange={(e) => handleNestedInputChange("degree", e.target.value)} />
-              <Input className="mt-2" placeholder="University" value={profile.education?.university || ""} onChange={(e) => handleNestedInputChange("university", e.target.value)} />
-              <Input className="mt-2" placeholder="Graduation Year" value={profile.education?.graduationYear || ""} onChange={(e) => handleNestedInputChange("graduationYear", e.target.value)} />
+              <p className="text-default-500">
+                {profile.education[profile.education.length - 1]?.degree} - {profile.education[profile.education.length - 1]?.university}
+              </p>
+              <p className="text-default-500">
+                Graduation: {profile.education[profile.education.length - 1]?.graduationYear}
+              </p>
             </>
           ) : (
-            <>
-              <p className="text-default-500">{profile.education?.degree} - {profile.education?.university}</p>
-              <p className="text-default-500">Graduation: {profile.education?.graduationYear}</p>
-            </>
+            <p className="text-default-500">No education details available.</p>
           )}
+
 
           {/* Edit Profile Button */}
           <Button
@@ -145,6 +190,118 @@ export default function StudentProfile() {
             </CardBody>
           </Card>
         </Tab>
+
+        <Tab key="education" title="Education">
+          <Card>
+            <CardBody className="space-y-4">
+              {profile.education.length > 0 ? (
+                profile.education.map((edu, index) => (
+                  <div key={index} className="mb-4 p-3 border rounded-lg flex items-center gap-2">
+                    {isEditing ? (
+                      <>
+                        <div className="flex flex-col w-full">
+                          <Input
+                            placeholder="Degree"
+                            value={edu.degree}
+                            onChange={(e) => handleArrayChange("education", index, "degree", e.target.value)}
+                          />
+                          <Input
+                            placeholder="University"
+                            value={edu.university}
+                            onChange={(e) => handleArrayChange("education", index, "university", e.target.value)}
+                          />
+                          <Input
+                            placeholder="Graduation Year"
+                            value={edu.graduationYear}
+                            onChange={(e) => handleArrayChange("education", index, "graduationYear", e.target.value)}
+                          />
+                        </div>
+                        {/* Delete Button */}
+                        <Button
+                          onClick={() => deleteEducation(index)}
+                          className="bg-red-500 text-white p-2 rounded-lg"
+                          aria-label="Delete education"
+                        >
+                          🗑️
+                        </Button>
+                      </>
+                    ) : (
+                      <p className="text-default-500">
+                        {edu.degree} - {edu.university} ({edu.graduationYear})
+                      </p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-default-500">No education details added.</p>
+              )}
+
+              {isEditing && (
+                <Button onClick={addEducation} className="mt-2" startContent={<Plus size={16} />}>
+                  Add Education
+                </Button>
+              )}
+            </CardBody>
+          </Card>
+        </Tab>
+
+        {/* Experience Section */}
+        <Tab key="experience" title="Experience">
+          <Card>
+            <CardBody>
+              {profile.experience.length > 0 ? (
+                profile.experience.map((exp, index) => (
+                  <div key={index} className="mb-4 p-3 border rounded-lg flex items-center gap-2">
+                    {isEditing ? (
+                      <>
+                        <div className="flex flex-col w-full">
+                          <Input
+                            placeholder="Job Title"
+                            value={exp.title}
+                            onChange={(e) => handleArrayChange("experience", index, "title", e.target.value)}
+                          />
+                          <Input
+                            placeholder="Company"
+                            value={exp.company}
+                            onChange={(e) => handleArrayChange("experience", index, "company", e.target.value)}
+                          />
+                          <Input
+                            placeholder="Enter Year and Months you have been worked for!"
+                            value={exp.years}
+                            onChange={(e) => handleArrayChange("experience", index, "", e.target.value)}
+                          />
+                        </div>
+                        {/* Delete Button */}
+                        <Button
+                          onClick={() => deleteExperience(index)}
+                          className="bg-red-500 text-white p-2 rounded-lg"
+                          aria-label="Delete experience"
+                        >
+                          🗑️
+                        </Button>
+                      </>
+                    ) : (
+                      <p className="text-default-500">
+                        {exp.title} at {exp.company} ({exp.years})
+                      </p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-default-500">No experience details added.</p>
+              )}
+
+              {isEditing && (
+                <Button onClick={addExperience} className="mt-2" startContent={<Plus size={16} />}>
+                  Add Experience
+                </Button>
+              )}
+            </CardBody>
+          </Card>
+        </Tab>
+
+
+
 
         {/* Skills Section */}
         <Tab key="skills" title="Skills">

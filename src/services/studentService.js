@@ -45,7 +45,9 @@ export const updateStudentProfile = async (studentId, updatedData) => {
 export const applyForJob = async (jobId, studentId, applicationData) => {
   try {
     if (!jobId || !studentId || !applicationData) {
-      console.error("Invalid data: jobId, studentId, or applicationData is missing");
+      console.error(
+        "Invalid data: jobId, studentId, or applicationData is missing"
+      );
       return false;
     }
 
@@ -60,7 +62,9 @@ export const applyForJob = async (jobId, studentId, applicationData) => {
     const studentData = studentSnap.data();
 
     // Construct full name from firstName and lastName
-    const fullName = `${studentData.firstName || ""} ${studentData.lastName || ""}`.trim() || "Unknown";
+    const fullName =
+      `${studentData.firstName || ""} ${studentData.lastName || ""}`.trim() ||
+      "Unknown";
 
     // Ensure all required fields have valid values
     const candidateData = {
@@ -73,6 +77,9 @@ export const applyForJob = async (jobId, studentId, applicationData) => {
       resume: applicationData.resume || "", // Resume link
       coverLetter: applicationData.coverLetter || "", // Cover letter (string)
       linkedinProfile: applicationData.linkedinProfile || "", // LinkedIn profile link
+      education: studentData.education || [], // Array of education details
+      experience: studentData.experience || [], // Array of experience details
+      location: studentData.location || "Not Provided", // Location as a string
     };
 
     // Remove undefined values before sending to Firestore
@@ -233,8 +240,8 @@ export const getEnrolledCourses = async (studentId) => {
         id: doc.id,
         ...doc.data(),
       }))
-      .filter((course) =>
-        course.students?.some((student) => student.id === studentId) // Filter manually
+      .filter(
+        (course) => course.students?.some((student) => student.id === studentId) // Filter manually
       );
 
     return courses;
