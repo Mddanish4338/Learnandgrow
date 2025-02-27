@@ -144,9 +144,9 @@ const TSidebar = ({ activeTab, setActiveTab, setCurrentComponent, onLogout }) =>
 
   const menuItems = [
     { name: "Dashboard", icon: <FaHome />, tab: "dashboard" },
-    { name: "Profile", icon: <FaUser />, tab: "profile" },
     { name: "Post Mentorship", icon: <FaPlus />, tab: "post-mentorship" },
-    { name: "My Posts", icon: <FaClipboardList />, tab: "posts" },
+    { name: "All Posts", icon: <FaClipboardList />, tab: "posts" },
+    { name: "Profile", icon: <FaUser />, tab: "profile" }
   ];
 
   useEffect(() => {
@@ -229,7 +229,7 @@ const TSidebar = ({ activeTab, setActiveTab, setCurrentComponent, onLogout }) =>
           )}
         </div>
       </div>
-      <div className="md:ml-64 p-6">
+      <div className="flex justify-center items-center md:ml-64 md:p-6">
         {setCurrentComponent}
       </div>
 

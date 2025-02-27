@@ -91,7 +91,7 @@
 //         <div className="flex items-center md:p-8 p-6 bg-[#FBF6E9] h-full lg:w-11/12 lg:ml-auto">
 //           <form className="max-w-lg w-full mx-auto" onSubmit={handleSignup}>
 //             <div className="mb-12">
-//               <h3 className="text-2xl font-bold text-[#FF6600]">
+//               <h3 className="text-2xl font-bold text-[#0066FF]">
 //                 Companies Create an account
 //               </h3>
 //             </div>
@@ -393,7 +393,7 @@ const CompanySignupForm = () => {
         <div className="flex items-center md:p-8 p-6 bg-[#FBF6E9] h-full lg:w-11/12 lg:ml-auto">
           <form className="max-w-lg w-full mx-auto" onSubmit={handleSignup}>
             <div className="mb-12">
-              <h3 className="text-2xl font-bold text-[#FF6600]">
+              <h3 className="text-2xl font-bold text-[#0066FF]">
                 Companies Create an account
               </h3>
             </div>
@@ -405,7 +405,7 @@ const CompanySignupForm = () => {
                   type="text"
                   name="name"
                   placeholder="Enter company name"
-                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#FF6600] pl-2 pr-8 py-3 outline-none"
+                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#0066FF] pl-2 pr-8 py-3 outline-none"
                   onChange={handleChange}
                   required
                 />
@@ -420,7 +420,7 @@ const CompanySignupForm = () => {
                 <textarea
                   name="description"
                   placeholder="Enter company description"
-                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#FF6600] pl-2 pr-8 py-3 outline-none"
+                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#0066FF] pl-2 pr-8 py-3 outline-none"
                   onChange={handleChange}
                   required
                 />
@@ -434,7 +434,7 @@ const CompanySignupForm = () => {
                   type="text"
                   name="size"
                   placeholder="Enter company size"
-                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#FF6600] pl-2 pr-8 py-3 outline-none"
+                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#0066FF] pl-2 pr-8 py-3 outline-none"
                   onChange={handleChange}
                   required
                 />
@@ -448,7 +448,7 @@ const CompanySignupForm = () => {
                   type="file"
                   name="logo"
                   accept="image/*"
-                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#FF6600] pl-2 pr-8 py-3 outline-none"
+                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#0066FF] pl-2 pr-8 py-3 outline-none"
                   onChange={handleLogoChange}
                   required
                 />
@@ -462,7 +462,7 @@ const CompanySignupForm = () => {
                   type="email"
                   name="email"
                   placeholder="Enter email"
-                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#FF6600] pl-2 pr-8 py-3 outline-none"
+                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#0066FF] pl-2 pr-8 py-3 outline-none"
                   onChange={handleChange}
                   required
                 />
@@ -476,7 +476,7 @@ const CompanySignupForm = () => {
                   type="password"
                   name="password"
                   placeholder="Enter password"
-                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#FF6600] pl-2 pr-8 py-3 outline-none"
+                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#0066FF] pl-2 pr-8 py-3 outline-none"
                   onChange={handleChange}
                   required
                 />
@@ -492,7 +492,7 @@ const CompanySignupForm = () => {
                   type="password"
                   name="confirmPassword"
                   placeholder="Confirm password"
-                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#FF6600] pl-2 pr-8 py-3 outline-none"
+                  className="w-full bg-transparent text-sm text-black border-b border-gray-300 focus:border-[#0066FF] pl-2 pr-8 py-3 outline-none"
                   onChange={handleChange}
                   required
                 />
@@ -504,7 +504,7 @@ const CompanySignupForm = () => {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 shrink-0 rounded accent-[#FF6600]"
+                className="h-4 w-4 shrink-0 rounded accent-[#0066FF]"
                 required
               />
               <label
@@ -514,7 +514,7 @@ const CompanySignupForm = () => {
                 I accept the{" "}
                 <a
                   href="/"
-                  className="text-[#FF6600] font-semibold hover:underline ml-1"
+                  className="text-[#0066FF] font-semibold hover:underline ml-1"
                 >
                   Terms and Conditions
                 </a>
@@ -524,7 +524,7 @@ const CompanySignupForm = () => {
             <div className="mt-8">
               <button
                 type="submit"
-                className="w-max shadow-xl py-3 px-6 text-sm text-gray-800 font-semibold rounded bg-[#FF6600] hover:bg-[#FF7F3E] focus:outline-none"
+                className="w-max shadow-xl py-3 px-6 text-sm text-gray-800 font-semibold rounded bg-[#0066FF] hover:bg-[#FF7F3E] focus:outline-none"
                 disabled={isLoading} // Disable button when loading
               >
                 {isLoading ? "Loading..." : "Register"} {/* Show loading text */}
@@ -541,7 +541,7 @@ const CompanySignupForm = () => {
               Already have an account?{" "}
               <a
                 href="/auth/login"
-                className="text-[#FF6600] font-semibold hover:underline ml-1"
+                className="text-[#0066FF] font-semibold hover:underline ml-1"
               >
                 Login here
               </a>

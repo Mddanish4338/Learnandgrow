@@ -8,6 +8,8 @@ import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
 import PostMentorship from "../pages/PostMentorship";
 import DisplayPosts from "../pages/DisplayPosts"; // Corrected import
+import { getTeacherCourses } from "../../services/teacherService";
+import { useAuth } from "../../context/AuthContext";
 
 const MentorDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -22,8 +24,31 @@ const MentorDashboard = () => {
     charge: ""
   });
   const [posts, setPosts] = useState([]);
+  // const [courses, setCourses] = useState([]);
+  // const { user } = useAuth();
+  // console.log("User:", user);
 
   useEffect(() => {
+    // const fetchData = async () => { 
+    //   try {
+    //     const courses = await getTeacherCourses(user.uid);
+    //     console.log("Courses:", courses);
+    //     if (courses && courses.length > 0 && trainer) {
+    //       setCourses(courses);
+          
+    //     }
+
+
+    //   } catch (error) {
+    //     console.error("Error fetching courses:", error);
+        
+    //   }
+      
+    // };
+
+    // fetchData();
+
+    
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const trainerRef = doc(db, "trainers", user.uid);
