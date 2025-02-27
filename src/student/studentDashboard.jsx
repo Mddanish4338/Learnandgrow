@@ -16,6 +16,9 @@ import {
   getAppliedJobs,
   enrollInCourse,
 } from "../services/studentService";
+import { Button, Card, CardBody, CardHeader, Progress } from "@nextui-org/react";
+import { Briefcase, UserCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -29,9 +32,6 @@ const Dashboard = () => {
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [filteredEnrolledCourses, setFilteredEnrolledCourses] = useState([]);
-
-
-
 
   const [jobFilters, setJobFilters] = useState({});
   const [jobs, setJobs] = useState([]);
@@ -49,6 +49,16 @@ const Dashboard = () => {
     };
     fetchStudentData();
   }, [user?.uid]);
+
+  const calculateProfileCompletion = (profile) => {
+    if (!profile) return 0;
+
+    const fields = ["firstName", "lastName", "email", "phone", "profilePicture", "address"];
+    const filledFields = fields.filter((field) => profile[field]);
+    return Math.round((filledFields.length / fields.length) * 100);
+  };
+
+  const profileCompletion = calculateProfileCompletion(student);
 
   // Fetch all courses
   useEffect(() => {
@@ -250,6 +260,44 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold">Applied Jobs</h3>
               <p className="text-2xl font-bold text-green-600 mt-2">{appliedJobs.length}</p>
             </div>
+
+            <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
+              <CardHeader className="flex gap-2 px-6 pt-6">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <UserCheck className="h-5 w-5 text-blue-500" />
+                </div>
+                <span className="font-bold text-lg">Profile Completion</span>
+              </CardHeader>
+
+              <CardBody className="gap-4 px-6 pb-6">
+                <Progress
+                  value={profileCompletion}
+                  color="primary"
+                  size="md"
+                  radius="sm"
+                  className="w-full"
+                  showValueLabel={true}
+                />
+                <div className="flex justify-between items-center">
+                  <span className="text-default-500 text-sm">
+                    {`${profileCompletion}% complete`}
+                  </span>
+                  {profileCompletion < 100 && (
+                    <Button
+                      size="sm"
+                      color="primary"
+                      variant="flat"
+                      className="font-medium"
+                      onClick={() => setActiveTab("profile")}  // Set activeTab to "profile"
+                    >
+                      Complete Profile
+                    </Button>
+
+                  )}
+                </div>
+              </CardBody>
+            </Card>
+
           </div>
         )}
 
@@ -331,10 +379,6 @@ const Dashboard = () => {
             </div>
           </div>
         )}
-
-
-
-
 
         {activeTab === "applied" && (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 sm:mb-10">

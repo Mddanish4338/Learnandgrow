@@ -5,9 +5,14 @@ import { GoBookmarkFill } from "react-icons/go";
 import { ImBooks } from "react-icons/im";
 import { useAuth } from "../../../context/AuthContext";
 import { getStudentById } from "../../../services/studentService";
+import { Button } from "@nextui-org/react";
+import { Link } from "react-router-dom";
+import { LogOut } from "lucide-react";
+import { RiProfileFill } from "react-icons/ri";
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const tabsRef = useRef([]);
+  const { logout } = useAuth();
   const [underlineStyle, setUnderlineStyle] = useState({
     top: 0,
     height: 0,
@@ -20,6 +25,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { name: "Jobs", tab: "jobs", icon: <MdOutlineWork /> },
     { name: "Applied", tab: "applied", icon: <GoBookmarkFill /> },
     { name: "Notifications", tab: "notifications", icon: <FaBell /> },
+    { name: "Profile", tab: "profile", icon: <RiProfileFill /> },
   ];
 
   const { user } = useAuth();
@@ -38,19 +44,19 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     }
   }, [activeTab]);
 
-  
-  
-    useEffect(() => {
-      const fetchStudentData = async () => {
-        if (user?.uid) {
-          const studentData = await getStudentById(user.uid);
-          console.log(studentData)
-          setStudent(studentData);
-          setLoading(false);
-        }
-      };
-      fetchStudentData();
-    }, [user.uid]);
+
+
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      if (user?.uid) {
+        const studentData = await getStudentById(user.uid);
+        console.log(studentData)
+        setStudent(studentData);
+        setLoading(false);
+      }
+    };
+    fetchStudentData();
+  }, [user.uid]);
 
   return (
     <div className="w-64 h-screen bg-gray-100 p-4 flex flex-col justify-between relative">
@@ -78,9 +84,8 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
               key={item.tab}
               ref={(el) => (tabsRef.current[index] = el)}
               onClick={() => setActiveTab(item.tab)}
-              className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                activeTab === item.tab ? "text-blue-700" : "text-gray-600"
-              } hover:bg-blue-100`}
+              className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${activeTab === item.tab ? "text-blue-700" : "text-gray-600"
+                } hover:bg-blue-100`}
             >
               <span>{item.icon}</span>
               <span>{item.name}</span>
@@ -90,19 +95,17 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       </div>
 
       {/* Profile Section - Switches to "Profile" on Click */}
-      <div
-        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-          activeTab === "profile" ? "text-blue-700 bg-blue-100" : "text-gray-600"
-        } hover:bg-blue-200`}
-        onClick={() => setActiveTab("profile")}
+      <Button
+        color="danger"
+        as={Link}
+        to="/"
+        variant="flat"
+        startContent={<LogOut className="w-[18px] h-full" size={20} />}
+        onPress={() => logout()}
+        className="mt-4 bg-gray-100"
       >
-        <img
-          src="https://avatar.iran.liara.run/public/38"
-          alt="Profile"
-          className="w-10 h-10 rounded-full"
-        />
-        <span>{student?.firstName + student?.lastName || "Student"}</span>
-      </div>
+        {"Logout"}
+      </Button>
     </div>
   );
 };

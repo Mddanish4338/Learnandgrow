@@ -8,10 +8,11 @@ import {
   Tab,
   Tabs,
 } from "@nextui-org/react";
-import { Edit2, Plus, X } from "lucide-react";
+import { Edit2, LogOut, Plus, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { getStudentById, updateStudentProfile } from "../../services/studentService";
 import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 
 export default function StudentProfile() {
   const [selectedTab, setSelectedTab] = useState("about");
@@ -142,14 +143,26 @@ export default function StudentProfile() {
 
           {/* Editable Name */}
           {isEditing ? (
-            <Input
-              className="mt-3"
-              value={profile.firstName}
-              onChange={(e) => handleInputChange("firstName", e.target.value)}
-            />
+            <div className="mt-3 flex flex-col sm:flex-row gap-2">
+              <Input
+                className="w-full sm:w-auto"
+                placeholder="First Name"
+                value={profile.firstName}
+                onChange={(e) => handleInputChange("firstName", e.target.value)}
+              />
+              <Input
+                className="w-full sm:w-auto"
+                placeholder="Last Name"
+                value={profile.lastName}
+                onChange={(e) => handleInputChange("lastName", e.target.value)}
+              />
+            </div>
           ) : (
-            <h1 className="text-2xl font-bold mt-4">{profile.firstName + " " + profile.lastName}</h1>
+            <h1 className="text-2xl font-bold mt-4">
+              {profile.firstName + " " + profile.lastName}
+            </h1>
           )}
+
 
           {/* Display Latest Education Details (No Direct Editing) */}
           {profile.education.length > 0 ? (
@@ -167,15 +180,31 @@ export default function StudentProfile() {
 
 
           {/* Edit Profile Button */}
-          <Button
-            color={isEditing ? "success" : "primary"}
-            variant="flat"
-            startContent={!isEditing ? <Edit2 size={16} /> : undefined}
-            onPress={handleEditToggle}
-            className="mt-4"
-          >
-            {isEditing ? "Save Changes" : "Edit Profile"}
-          </Button>
+          <div className="flex gap-2 px-2">
+            <Button
+              color={isEditing ? "success" : "primary"}
+              variant="flat"
+              startContent={!isEditing ? <Edit2 size={16} /> : undefined}
+              onPress={handleEditToggle}
+              className="mt-4 w-full "
+            >
+              {isEditing ? "Save Changes" : "Edit Profile"}
+            </Button>
+
+            {/* <Button
+              color="danger"
+              as={Link}
+              to="/"
+              variant="flat"
+              startContent={<LogOut className="w-[24px] h-full" size={30} />}
+              onPress={()=>logout()}
+              className="mt-4"
+            >
+              {"Logout"}
+            </Button> */}
+
+          </div>
+
         </CardBody>
       </Card>
 
