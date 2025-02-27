@@ -51,7 +51,7 @@ const JobFilter = ({ setFilters }) => {
   };
 
   return (
-    <div className="p-4 bg-gray-100 shadow-md rounded-lg w-[350px]">
+    <div className="p-4 bg-gray-100 shadow-md rounded-lg w-[310px]">
       <h3 className="font-semibold text-lg mb-3">Filter Jobs</h3>
 
       {/* Location Filter */}

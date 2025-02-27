@@ -8,7 +8,7 @@ import {
   Tab,
   Tabs,
 } from "@nextui-org/react";
-import { Edit2, Plus, Trash2, X } from "lucide-react";
+import { Edit2, Plus, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { getStudentById, updateStudentProfile } from "../../services/studentService";
 import { useAuth } from "../../context/AuthContext";
@@ -64,15 +64,15 @@ export default function StudentProfile() {
   };
 
   // Handle Input Changes for Nested Fields (Education)
-  const handleNestedInputChange = (field, value) => {
-    setProfile((prev) => ({
-      ...prev,
-      education: {
-        ...prev.education,
-        [field]: value,
-      },
-    }));
-  };
+  // const handleNestedInputChange = (field, value) => {
+  //   setProfile((prev) => ({
+  //     ...prev,
+  //     education: {
+  //       ...prev.education,
+  //       [field]: value,
+  //     },
+  //   }));
+  // };
 
   // Handle Skill Input
   const handleSkillChange = (e) => setNewSkill(e.target.value);
@@ -179,7 +179,7 @@ export default function StudentProfile() {
         </CardBody>
       </Card>
 
-      <Tabs selectedKey={selectedTab} onSelectionChange={setSelectedTab} variant="underlined">
+      <Tabs selectedKey={selectedTab} onSelectionChange={setSelectedTab} variant="underlined" className="flex flex-wrap">
         {/* About Section */}
         <Tab key="about" title="About">
           <Card>
@@ -199,7 +199,7 @@ export default function StudentProfile() {
                   <div key={index} className="mb-4 p-3 border rounded-lg flex items-center gap-2">
                     {isEditing ? (
                       <>
-                        <div className="flex flex-col w-full">
+                        <div className="flex flex-col w-full gap-3">
                           <Input
                             placeholder="Degree"
                             value={edu.degree}
@@ -219,7 +219,7 @@ export default function StudentProfile() {
                         {/* Delete Button */}
                         <Button
                           onClick={() => deleteEducation(index)}
-                          className="bg-red-500 text-white p-2 rounded-lg"
+                          className=" bg-white p-2 rounded-lg"
                           aria-label="Delete education"
                         >
                           🗑️
@@ -254,7 +254,7 @@ export default function StudentProfile() {
                   <div key={index} className="mb-4 p-3 border rounded-lg flex items-center gap-2">
                     {isEditing ? (
                       <>
-                        <div className="flex flex-col w-full">
+                        <div className="flex flex-col w-full gap-3">
                           <Input
                             placeholder="Job Title"
                             value={exp.title}
@@ -274,7 +274,7 @@ export default function StudentProfile() {
                         {/* Delete Button */}
                         <Button
                           onClick={() => deleteExperience(index)}
-                          className="bg-red-500 text-white p-2 rounded-lg"
+                          className="bg-white p-2 rounded-lg"
                           aria-label="Delete experience"
                         >
                           🗑️
@@ -300,16 +300,13 @@ export default function StudentProfile() {
           </Card>
         </Tab>
 
-
-
-
         {/* Skills Section */}
         <Tab key="skills" title="Skills">
           <Card>
             <CardBody>
               <div className="flex flex-wrap gap-2">
                 {(profile.skills || []).map((skill, index) => (
-                  <Chip key={index} variant="flat" color="primary" className="flex items-center">
+                  <Chip key={index} variant="flat" color="primary" className="flex items-center ">
                     {skill}
                     {isEditing && (
                       <X

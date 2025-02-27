@@ -65,7 +65,7 @@ const JobCard = ({ job, studentId }) => {
 
   return (
     <>
-      <div className="bg-gray-100 shadow-md rounded-lg p-4 flex flex-col md:flex-row justify-between items-start w-full md:w-[800px]">
+      <div className="bg-gray-100 shadow-md rounded-lg p-4 flex flex-row md:flex-row justify-between items-start w-full md:w-[800px]">
         <div className="flex-1">
           <h3 className="font-semibold text-xl">{job.jobTitle}</h3>
           <p className="text-gray-500">{companyInfo?.name || "Unknown Company"}</p>
@@ -92,7 +92,7 @@ const JobCard = ({ job, studentId }) => {
           </div>
 
           <p className="text-xs text-green-500 mt-2 mb-2">
-            {job.postedAt?.seconds ? new Date(job.postedAt.seconds * 1000).toLocaleDateString() : "Unknown Date"}
+            {job.postedAt?.seconds ? new Date(job.postedAt.seconds * 1000).toLocaleDateString("en-GB") : "Unknown Date"}
           </p>
 
           <button
