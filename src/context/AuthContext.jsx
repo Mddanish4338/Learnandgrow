@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { auth } from "../utils/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth, db } from "../utils/firebase";
+import { onAuthStateChanged, signOut, getIdTokenResult } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 const AuthContext = createContext();
 
@@ -11,15 +12,38 @@ export const AuthProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        setUser(firebaseUser);
-        localStorage.setItem("user", JSON.stringify(firebaseUser));
+        try {
+          let role = null;
+
+          const idTokenResult = await firebaseUser.getIdTokenResult();
+          role = idTokenResult.claims.role;
+
+          if (!role) {
+            const roleCollections = ["students", "trainers", "companies"];
+            for (const collection of roleCollections) {
+              const docRef = doc(db, collection, firebaseUser.uid);
+              const docSnap = await getDoc(docRef);
+              if (docSnap.exists()) {
+                role = collection;
+                break;
+              }
+            }
+          }
+
+          const updatedUser = { ...firebaseUser, role };
+          setUser(updatedUser);
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+        }
       } else {
         setUser(null);
         localStorage.removeItem("user");
       }
     });
+
     return () => unsubscribe();
   }, []);
 
