@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 
 const THeader = () => {
   return (
+<<<<<<< Updated upstream
     <motion.div
       className="p-4 flex justify-center items-center"
       initial={{ opacity: 0, y: -50 }}
@@ -20,6 +21,11 @@ const THeader = () => {
         Trainer Dashboard
       </motion.h2>
     </motion.div>
+=======
+    <div className="bg-white p-4 flex justify-between items-center shadow-md">
+      <h2 className="text-2xl font-bold">Trainer Dashboard</h2>
+    </div>
+>>>>>>> Stashed changes
   );
 };
 

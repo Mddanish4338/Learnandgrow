@@ -202,6 +202,7 @@ const DisplayPosts = () => {
   // Fetch posts created by the logged-in teacher
   useEffect(() => {
     const fetchPosts = async () => {
+<<<<<<< Updated upstream
       if (user?.uid) {
         const postsRef = collection(db, "courses");
         const q = query(postsRef, where("teacherId", "==", user.uid));
@@ -212,6 +213,12 @@ const DisplayPosts = () => {
         }));
         setPosts(postsData);
       }
+=======
+      const postsRef = collection(db, 'courses');
+      const postsSnap = await getDocs(postsRef);
+      const postsData = postsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setPosts(postsData);
+>>>>>>> Stashed changes
     };
 
     fetchPosts();
