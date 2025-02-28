@@ -48,7 +48,7 @@ const LandingRoutes = () => {
           </div>
         }
       />
-      <Route path="/terms" element={<Terms />} />
+      <Route path="/Terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/about" element={<About />} />
     </Routes>

@@ -7,21 +7,14 @@ const ContentSection = () => {
           Meet international students & teachers
         </h1>
         <p className="mt-8 leading-9 max-md:max-w-full ">
-        "Morbi sits with a dignified poise, marked by elegance. Time moves steadily like an old age, flowing gently yet firmly, now and then. It embraces comfort, finding ease in every move, with grace that never falters. Like a well-placed structure, it stands firm — a steady presence, blending softness and strength, carrying itself with quiet confidence."
+        "Learn&Grow stands as a hub of excellence, where companies find top talent effortlessly. Time moves with precision, ensuring efficiency in every hiring decision. It fosters a seamless recruitment process, balancing innovation with reliability. Like a well-structured foundation, it offers stability—connecting businesses with skilled professionals, blending expertise with opportunity, and driving growth with quiet confidence."
         </p>
         <div className="flex gap-4 items-center self-start mt-8 font-medium tracking-wide leading-tight text-black">
           <button
             className="flex justify-center items-center self-stretch py-4 pr-2 my-auto rounded-lg min-w-[240px]"
             aria-label="Explore teachers and students"
           >
-            <span className="text-[#7096D1] self-stretch pr-4 my-auto min-w-[240px]">
-              Explore teachers and students
-            </span>
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/7b24c157a154f50c68f83f0b03054fc7b241731d650c53545d0c7859e2263be7?placeholderIfAbsent=true&apiKey=acdba41aa2944c3882a28ccbc21fcf8a"
-              alt=""
-              className="object-contain shrink-0 self-stretch my-auto w-6 aspect-square"
-            />
+           
           </button>
         </div>
       </div>

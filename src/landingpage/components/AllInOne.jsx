@@ -8,13 +8,16 @@ import "slick-carousel/slick/slick-theme.css";
 const features = [
   { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/640fefebceff3e120b28dc16fbfcd06c4c260e6b3a8b8bbe729e13f8a5d08cf0", text: "It is also great for organizing or enhancing your learning experience." },
   { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/640fefebceff3e120b28dc16fbfcd06c4c260e6b3a8b8bbe729e13f8a5d08cf0", text: "Discover new ways to achieve your goals with our innovative tools." },
+  { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/640fefebceff3e120b28dc16fbfcd06c4c260e6b3a8b8bbe729e13f8a5d08cf0", text: "Master new skills and reach new heights effortlessly." },
+  { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/640fefebceff3e120b28dc16fbfcd06c4c260e6b3a8b8bbe729e13f8a5d08cf0", text: "Transform your career with smarter learning strategies." },
+  { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/640fefebceff3e120b28dc16fbfcd06c4c260e6b3a8b8bbe729e13f8a5d08cf0", text: "Empower your future through skill-driven innovation." },
   { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/640fefebceff3e120b28dc16fbfcd06c4c260e6b3a8b8bbe729e13f8a5d08cf0", text: "Simplify your tasks and focus on what truly matters." }
 ];
 
 const courses = [
-  { title: "The Map of Mathematics", description: "Explore the fascinating world of mathematics and its applications.", tag: { text: "Featured", color: "purple" }, imageSrc: 'https://images.velog.io/images/xxhaileypark/post/8c4a3b45-7a20-4bee-bc98-48586c498587/Python-language.png' },
-  { title: "Design for How People Think", description: "Learn how to create designs that resonate with human psychology.", tag: { text: "Popular", color: "blue" }, imageSrc: 'https://www.keycdn.com/img/support/javascript.png' },
-  { title: "International & Commercial Law", description: "Understand the complexities of global and business law very effeciently.", tag: { text: "New", color: "green" }, imageSrc: 'https://logos-world.net/wp-content/uploads/2022/07/Java-Logo.jpg' }
+  { title: "Master Python for Success", description: "Master Python and Unlock Endless Opportunities in Programming and Data Science", tag: { text: "Featured", color: "purple" }, imageSrc: 'https://images.velog.io/images/xxhaileypark/post/8c4a3b45-7a20-4bee-bc98-48586c498587/Python-language.png' },
+  { title: "JavaScript Mastery Made Easy", description: "Learn JavaScript to Build Dynamic Websites, Interactive Apps, and Scalable Solutions", tag: { text: "Popular", color: "blue" }, imageSrc: 'https://www.keycdn.com/img/support/javascript.png' },
+  { title: "Become a Java Expert", description: "Learn Java for High-Performance Applications, Scalable Systems, and Career Growth", tag: { text: "New", color: "green" }, imageSrc: 'https://logos-world.net/wp-content/uploads/2022/07/Java-Logo.jpg' }
 ];
 
 export const AllInOneApp = () => {
@@ -42,13 +45,6 @@ export const AllInOneApp = () => {
           ))}
         </div>
         <button className="relative z-10 flex justify-center items-center py-2 pr-2 mt-8 font-medium tracking-wide leading-tight text-black rounded-lg">
-          <span className="pr-4 text-[#7096D1] my-auto min-w-[240px] ml-4">Learn more about the app</span>
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/d5d03c0bbba4f7bb7467339711d8c230c541e4c78fb0260e4f751fa95165957e?placeholderIfAbsent=true&apiKey=acdba41aa2944c3882a28ccbc21fcf8a"
-            alt=""
-            className="object-contain shrink-0 self-stretch my-auto w-6 aspect-square ml-1 mt-1"
-          />
         </button>
       </section>
 

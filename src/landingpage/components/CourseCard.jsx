@@ -1,16 +1,33 @@
-import React from 'react';
-import Button from './Button';
+import { Button } from '@nextui-org/react';
+import React, { useState } from 'react';
 
 export const CourseCard = ({ title, description, tag, imageSrc }) => {
-  // Color mapping for Tailwind classes
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // Color mappings
   const colorClasses = {
     purple: "bg-purple-100 text-purple-600",
     blue: "bg-blue-100 text-blue-600",
     green: "bg-green-100 text-green-600"
   };
 
+  const glowColors = {
+    purple: 'rgba(147, 51, 234, 0.7)',
+    blue: 'rgba(59, 130, 246, 0.7)',
+    green: 'rgba(34, 197, 94, 0.7)'
+  };
+
   return (
-    <div className="flex overflow-hidden relative flex-col flex-1 shrink bg-stone-200 rounded-xl shadow-2xl hover:shadow-3xl transition-shadow duration-300">
+    <div 
+      className="flex overflow-hidden relative flex-col flex-1 shrink bg-stone-100 rounded-xl shadow-2xl transition-shadow duration-300"
+      style={{
+        boxShadow: isHovered 
+          ? `var(--tw-shadow), 0 0 20px ${glowColors[tag.color]}`
+          : 'var(--tw-shadow)',
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Top Image */}
       <img
         src={imageSrc}
@@ -26,13 +43,6 @@ export const CourseCard = ({ title, description, tag, imageSrc }) => {
         <p className="mt-2 text-sm leading-5 italic">
           {description}
         </p>
-      </div>
-      
-      {/* Button */}
-      <div className="flex gap-4 items-start p-4 w-full text-sm font-medium tracking-wide leading-6">
-        <Button variant="primary" size="small">
-          <span>Take Lesson</span>
-        </Button>
       </div>
       
       {/* Tag */}

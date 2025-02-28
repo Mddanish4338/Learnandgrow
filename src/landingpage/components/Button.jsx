@@ -1,21 +1,24 @@
-const Button = ({ variant, size, children }) => {
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
+const Button = ({ variant, size, children, handleClick }) => {
   const baseClasses =
     "flex justify-center items-center px-6 py-5 text-xl font-bold leading-none rounded-lg border-2 border-solid transition-all duration-200";
 
   const variantClasses =
     variant === "primary"
-      ? "text-white bg-[#7096D1]  cursor-pointer hover:bg-gray-700 hover:text-white"
+      ? "text-white bg-[#7096D1] cursor-pointer hover:bg-gray-700 hover:text-white"
       : "text-black cursor-pointer";
 
   const sizeClasses =
-  size === "large"
-  ? "px-6 py-5 text-2xl"
-  : size === "small"
-  ? "!px-3 !py-2 !text-sm !text-white"  // Forcefully small size apply hoga
-  : "px-4 py-3 text-base";// Default medium size
+    size === "large"
+      ? "px-6 py-5 text-2xl"
+      : size === "small"
+      ? "!px-3 !py-2 !text-sm !text-white"
+      : "px-4 py-3 text-base"; // Default medium size
 
   return (
-    <button className={`${baseClasses} ${variantClasses} ${sizeClasses}`}>
+    <button onClick={handleClick} className={`${baseClasses} ${variantClasses} ${sizeClasses}`}>
       {variant === "secondary" && (
         <img
           loading="lazy"
@@ -29,4 +32,18 @@ const Button = ({ variant, size, children }) => {
   );
 };
 
-export default Button;
+const SignupForTeachersButton = () => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/auth/signup/trainer"); // ✅ Navigate to Sign Up for Teachers
+  };
+
+  return (
+    <Button variant="primary" size="large" handleClick={handleClick}>
+      Sign Up as Teachers
+    </Button>
+  );
+};
+
+export default SignupForTeachersButton;

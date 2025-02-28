@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@nextui-org/react": "^2.6.11",
     "@tailwindcss/cli": "^4.0.6",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -19,10 +21,12 @@
     "react-slick": "^0.30.3",
     "react-toastify": "^11.0.3",
     "slick-carousel": "^1.8.1",
+    "tailwindcss-animate": "^1.0.7",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
+    "dev": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

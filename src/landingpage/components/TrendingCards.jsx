@@ -4,21 +4,18 @@ const trendingCards = [
   {
     title: "Online Courses with Guaranteed Placement",
     description: "Placement guaranteed courses",
-    btnText: "Know more",
     bgColor: "bg-teal-500",
     textColor: "text-white",
   },
   {
     title: "Welcome! Special offer of 55% + 10% OFF",
     description: "Learn&Grow Trainings",
-    btnText: "Know more",
     bgColor: "bg-blue-300",
     textColor: "text-gray-900",
   },
   {
     title: "MATCH MADE ON Learn&Grow",
     description: "Match with top brands & earn up to ₹1.8 lacs",
-    btnText: "Participate now",
     bgColor: "bg-pink-300",
     textColor: "text-gray-900",
   },
@@ -35,22 +32,46 @@ const TrendingCards = () => {
         Trending on Learn&Grow 🔥
       </p>
 
-      <div className="grid md:grid-cols-3 gap-6 mt-6 w-full max-w-6xl">
+      <div className="grid md:grid-cols-3 gap-8 mt-6 w-full max-w-6xl px-4">
         {trendingCards.map((card, index) => (
           <div
             key={index}
-            className={` p-12 rounded-xl shadow-2xl ${card.bgColor} ${card.textColor}`}
+            className="relative h-full rounded-xl group"
           >
-            <p className="text-sm font-semibold mb-2 bg-white/20 px-3 py-1 inline-block rounded-lg">
-              {card.description}
-            </p>
-            <h3 className="text-lg font-bold">{card.title}</h3>
-            <button className="mt-4 px-4 py-2 bg-white text-black rounded-full font-medium cursor-pointer hover:bg-gray-700 hover:text-white">
-              {card.btnText}
-            </button>
+            {/* Glowing Border */}
+            <div className="absolute -inset-[2px] rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-30 group-hover:opacity-50 transition-all duration-300 animate-spin-slow" />
+            
+            {/* Glow Effect */}
+            <div className="absolute -inset-[2px] rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 blur-2xl opacity-10 animate-pulse" />
+
+            {/* Card Content */}
+            <div
+              className={`relative h-full p-8 rounded-xl shadow-2xl ${card.bgColor} ${card.textColor}`}
+            >
+              <p className="text-sm font-semibold mb-4 bg-white/20 px-4 py-2 inline-block rounded-lg">
+                {card.description}
+              </p>
+              <h3 className="text-2xl font-bold mb-6">{card.title}</h3>
+              
+            </div>
           </div>
         ))}
       </div>
+
+      <style jsx global>{`
+        @keyframes spin-slow {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+        
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };
