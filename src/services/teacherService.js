@@ -1,5 +1,4 @@
 import { db } from "../utils/firebase";
-<<<<<<< Updated upstream
 import {
   Timestamp,
   collection,
@@ -12,9 +11,6 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore";
-=======
-import { collection, addDoc, Timestamp, doc, updateDoc, where, setDoc, deleteDoc, query, getDocs,getDoc } from "firebase/firestore";
->>>>>>> Stashed changes
 //create course
 export const createCourse = async (courseData) => {
   try {

@@ -10,11 +10,10 @@ import { ProtectedRoute } from "./middleware/middleware";
 
 function App() {
   return (
-<<<<<<< Updated upstream
     <AuthProvider>
       <Routes>
         <Route path="/auth/*" element={<AuthRoute />} />
-        <Route path="/" element={<LandingRoutes />} />
+        <Route path="/*" element={<LandingRoutes />} />
 
         <Route
           path="/mentor-dashboard/*"
@@ -44,19 +43,6 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
-=======
-    <>
-      <AuthProvider>
-        <Routes>
-          <Route path="/auth/*" element={<AuthRoute />} />
-          <Route path="/mentor-dashboard" element={<MentorDashboard />} />
-          <Route path="/company-panel/*" element={<CompanyApp />} />
-          <Route path="/student-panel/*" element={<StudentDashBoard />} />
-          <Route path="/*" element={<LandingRoutes />} />
-        </Routes>
-      </AuthProvider>
-    </>
->>>>>>> Stashed changes
   );
 }
 
