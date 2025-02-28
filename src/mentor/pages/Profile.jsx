@@ -381,12 +381,11 @@ export default function MentorProfile() {
 </div> */}
 
 
-
 <div className="bg-indigo-50 p-4 rounded-lg">
   <h3 className="text-lg font-semibold mb-3 text-indigo-700">Availability</h3>
   {isEditing ? (
     <div className="flex flex-wrap gap-2">
-      {profile.availability.map((day, index) => (
+      {profile.availability?.map((day, index) => (
         <input
           key={index}
           type="text"
@@ -402,7 +401,7 @@ export default function MentorProfile() {
       ))}
       <button
         onClick={() =>
-          setProfile({ ...profile, availability: [...profile.availability, ""] })
+          setProfile({ ...profile, availability: [...(profile.availability || []), ""] })
         }
         className="text-indigo-600 hover:underline"
       >
@@ -411,7 +410,7 @@ export default function MentorProfile() {
     </div>
   ) : (
     <div className="flex flex-wrap gap-2">
-      {profile.availability.length > 0 ? (
+      {profile.availability?.length > 0 ? (
         profile.availability.map((day, index) => (
           <Chip key={index} variant="flat" className="bg-indigo-100 text-indigo-700 font-medium">
             {day}
@@ -428,7 +427,7 @@ export default function MentorProfile() {
   <h3 className="text-lg font-semibold mb-3 text-indigo-700">Certifications</h3>
   {isEditing ? (
     <div className="flex flex-wrap gap-2">
-      {profile.certifications.map((certification, index) => (
+      {profile.certifications?.map((certification, index) => (
         <input
           key={index}
           type="text"
@@ -444,7 +443,7 @@ export default function MentorProfile() {
       ))}
       <button
         onClick={() =>
-          setProfile({ ...profile, certifications: [...profile.certifications, ""] })
+          setProfile({ ...profile, certifications: [...(profile.certifications || []), ""] })
         }
         className="text-indigo-600 hover:underline"
       >
@@ -453,7 +452,7 @@ export default function MentorProfile() {
     </div>
   ) : (
     <div className="flex flex-wrap gap-2">
-      {profile.certifications.length > 0 ? (
+      {profile.certifications?.length > 0 ? (
         profile.certifications.map((certification, index) => (
           <Chip key={index} variant="flat" className="bg-indigo-100 text-indigo-700 font-medium">
             {certification}

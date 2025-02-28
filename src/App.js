@@ -20,7 +20,7 @@ function App() {
           element={
             <ProtectedRoute
               element={<MentorDashboard />}
-              allowedRole="mentor"
+              allowedRole="trainers"
             />
           }
         />

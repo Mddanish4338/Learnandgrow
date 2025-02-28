@@ -291,7 +291,7 @@ const TrainerSignupForm = () => {
         experience: `${formData.experienceYears} years ${formData.experienceMonths} months`,
         email: formData.email,
         phone: formData.phone,
-        role: "trainer",
+        role: "trainers",
         uid: user.uid,
       };
 
