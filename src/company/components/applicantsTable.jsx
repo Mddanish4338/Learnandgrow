@@ -123,11 +123,11 @@ const ApplicantsTable = ({
         return (
           <Chip
             size="sm"
-            color={statusColorMap[applicant.hiringStatus]}
+            color={statusColorMap[applicant?.hiringStatus || "New"]}
             variant="flat"
             className="text-xs"
           >
-            {applicant.hiringStatus}
+            {applicant?.hiringStatus || "New"}
           </Chip>
         );
 
@@ -163,9 +163,9 @@ const ApplicantsTable = ({
                       </p>
                     </div>
                   </div>
-                  <Divider className="my-2" />
+                  <Divider className="my-1" />
                   {applicant?.experience?.length > 0 && (
-                    <div className="my-4 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">
+                    <div className="my-2 p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
                       <div className="flex items-center mb-1">
                         <p className="text-lg font-semibold text-gray-800">
                           Experience
@@ -184,7 +184,7 @@ const ApplicantsTable = ({
                   )}
 
                   {applicant?.education?.length > 0 && (
-                    <div className="my-4 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">
+                    <div className="my-2 p-2 border border-gray-200 rounded-lg shadow-sm bg-white">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="text-lg font-semibold text-gray-800">
                           Education
@@ -221,7 +221,7 @@ const ApplicantsTable = ({
                       color={statusColorMap[applicant.hiringStatus]}
                       variant="flat"
                     >
-                      {applicant.hiringStatus}
+                      {applicant?.hiringStatus || "New"}
                     </Chip>
                     <Button
                       isIconOnly
