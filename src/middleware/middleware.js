@@ -11,7 +11,6 @@ export const ProtectedRoute = ({ element, allowedRole }) => {
   if (!user || !user.uid) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
-  console.log(user);
   if (allowedRole && user.role !== allowedRole) {
     return <UnauthorizedFallback role={user.role} requiredRole={allowedRole} />;
   }

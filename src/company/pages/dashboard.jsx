@@ -127,7 +127,6 @@ const DashBoard = () => {
       }
       if (completion) {
         setProfileCompletion(completion);
-        console.log(completion);
       }
       setLoading(false);
     };

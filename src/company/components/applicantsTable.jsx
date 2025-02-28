@@ -60,7 +60,6 @@ const ApplicantsTable = ({
         console.error("Failed to copy: ", err);
       });
   };
-
   const handleDownloadResume = (resumeUrl) => {
     const link = document.createElement("a");
     link.href = resumeUrl;
@@ -94,6 +93,7 @@ const ApplicantsTable = ({
   };
 
   const renderCell = (applicant, columnKey) => {
+    console.log(applicant.education);
     switch (columnKey) {
       case "applicant":
         return (
@@ -164,18 +164,44 @@ const ApplicantsTable = ({
                     </div>
                   </div>
                   <Divider className="my-2" />
-                  {applicant.experience && (
-                    <div className="my-2">
-                      <p className="text-sm font-medium">Experience</p>
-                      <p className="text-sm">{applicant.experience}</p>
+                  {applicant?.experience?.length > 0 && (
+                    <div className="my-4 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">
+                      <div className="flex items-center mb-1">
+                        <p className="text-lg font-semibold text-gray-800">
+                          Experience
+                        </p>
+                      </div>
+                      <p className="text-md font-medium text-gray-900">
+                        {applicant.experience[0].title}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {applicant.experience[0].company}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Years: {applicant.experience[0].years}
+                      </p>
                     </div>
                   )}
-                  {applicant.education && (
-                    <div className="my-2">
-                      <p className="text-sm font-medium">Education</p>
-                      <p className="text-sm">{applicant.education}</p>
+
+                  {applicant?.education?.length > 0 && (
+                    <div className="my-4 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-lg font-semibold text-gray-800">
+                          Education
+                        </p>
+                      </div>
+                      <p className="text-md font-medium text-gray-900">
+                        {applicant.education[0].degree}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {applicant.education[0].university}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Graduation Year: {applicant.education[0].graduationYear}
+                      </p>
                     </div>
                   )}
+
                   <div className="my-2">
                     <p className="text-sm font-medium">Skills</p>
                     <div className="flex flex-wrap gap-1 mt-1">
