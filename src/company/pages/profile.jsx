@@ -211,19 +211,6 @@ export default function Profile() {
           </div>
 
           <div className="flex justify-end mt-4 p-4 gap-2">
-            <Button
-              as={Link}
-              to="/"
-              variant="light"
-              color="danger"
-              className={cn(
-                "w-full justify-start gap-2 hover:bg-danger/10 transition-colors"
-              )}
-              startContent={<LogOut size={20} />}
-              onPress={() => logout}
-            >
-              Logout
-            </Button>
             {isEditing ? (
               <div className="flex gap-2">
                 <Button
@@ -256,6 +243,19 @@ export default function Profile() {
                 Edit Profile
               </Button>
             )}
+            <Button
+              as={Link}
+              to="/"
+              variant="light"
+              color="danger"
+              className={cn(
+                "justify-start gap-2 hover:bg-danger/10 transition-colors"
+              )}
+              startContent={<LogOut size={20} />}
+              onPress={() => logout()}
+            >
+              Logout
+            </Button>
           </div>
         </CardBody>
       </Card>

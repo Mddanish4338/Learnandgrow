@@ -94,7 +94,7 @@ function Sidebar({ setActivePage }) {
             "w-full justify-start gap-2 hover:bg-danger/10 transition-colors"
           )}
           startContent={<LogOut size={20} />}
-          onPress={() => logout}
+          onPress={() => logout()}
         >
           Logout
         </Button>
