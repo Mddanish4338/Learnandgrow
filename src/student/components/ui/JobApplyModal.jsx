@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const JobApplyModal = ({ isOpen, onClose, job, onApply ,company}) => {
+const JobApplyModal = ({ isOpen, onClose, job, onApply, company }) => {
   const [resumeLink, setResumeLink] = useState(""); // Changed from file input
   const [coverLetter, setCoverLetter] = useState("");
   const [linkedinProfile, setLinkedinProfile] = useState("");
@@ -83,10 +83,19 @@ const JobApplyModal = ({ isOpen, onClose, job, onApply ,company}) => {
           <label className="block text-gray-600 font-semibold mt-3 mb-1">✉ Cover Letter</label>
           <textarea
             className="w-full border p-2 rounded"
-            placeholder="Write your cover letter here..."
+            placeholder="Write your cover letter here (max 100 words)..."
             value={coverLetter}
-            onChange={(e) => setCoverLetter(e.target.value)}
+            onChange={(e) => {
+              const words = e.target.value.trim() === "" ? [] : e.target.value.trim().split(/\s+/);
+              if (words.length <= 100) {
+                setCoverLetter(e.target.value);
+              }
+            }}
           ></textarea>
+          <p className="text-sm text-gray-500 mt-1">
+            {coverLetter.trim() === "" ? 0 : coverLetter.trim().split(/\s+/).length} / 100 words
+          </p>
+
 
           <label className="block text-gray-600 font-semibold mt-3 mb-1">🔗 LinkedIn Profile</label>
           <input
@@ -103,9 +112,8 @@ const JobApplyModal = ({ isOpen, onClose, job, onApply ,company}) => {
         {/* Apply Button */}
         <button
           onClick={handleSubmit}
-          className={`mt-4 w-full py-2 rounded font-semibold transition-all ${
-            loading ? "bg-gray-400 text-gray-800 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
-          }`}
+          className={`mt-4 w-full py-2 rounded font-semibold transition-all ${loading ? "bg-gray-400 text-gray-800 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           disabled={loading}
         >
           {loading ? "Applying..." : "🚀 Apply Now"}
