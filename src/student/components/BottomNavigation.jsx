@@ -1,12 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { FiFilter, FiHome, FiBookmark, FiBriefcase } from "react-icons/fi";
 import { MdDashboard } from "react-icons/md";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { IoIosLogOut } from "react-icons/io";
 
 const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [jobDropdown, setJobDropdown] = useState(false);
   const tabsRef = useRef([]);
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const menuItems = [
     { name: "Dashboard", tab: "dashboard", icon: <MdDashboard /> },
@@ -49,9 +54,8 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
                   setJobDropdown(false);
                 }
               }}
-              className={`flex flex-col items-center ${
-                activeTab === item.tab ? "text-sky-700" : "text-gray-500"
-              }`}
+              className={`flex flex-col items-center ${activeTab === item.tab ? "text-sky-700" : "text-gray-500"
+                }`}
             >
               {item.icon}
               <span className="text-xs mt-1">{item.name}</span>
@@ -61,9 +65,8 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
           {jobDropdown && (
             <div className="absolute bottom-[3.5rem] left-[18.5rem] transform -translate-x-1/2 bg-white shadow-lg border rounded-md p-2 w-32">
               <button
-                className={`block w-full text-left px-2 py-1 hover:bg-gray-100 ${
-                  activeTab === "jobs" ? "text-sky-700" : "text-gray-500"
-                }`}
+                className={`block w-full text-left px-2 py-1 hover:bg-gray-100 ${activeTab === "jobs" ? "text-sky-700" : "text-gray-500"
+                  }`}
                 onClick={() => {
                   setActiveTab("jobs");
                   setJobDropdown(false);
@@ -72,9 +75,8 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
                 All Jobs
               </button>
               <button
-                className={`block w-full text-left px-2 py-1 hover:bg-gray-100 ${
-                  activeTab === "jobs" ? "text-sky-700" : "text-gray-500"
-                }`}
+                className={`block w-full text-left px-2 py-1 hover:bg-gray-100 ${activeTab === "jobs" ? "text-sky-700" : "text-gray-500"
+                  }`}
                 onClick={() => {
                   setActiveTab("applied");
                   setJobDropdown(false);
@@ -95,14 +97,28 @@ const BottomNavigation = ({ activeTab, setActiveTab, renderFilterContent }) => {
 
           <button
             onClick={() => setActiveTab("profile")}
-            className="flex items-center text-gray-500"
+            className="flex flex-col items-center text-gray-500"
           >
-            <img
-              src="https://avatar.iran.liara.run/public/31"
-              alt="Profile"
-              className="w-8 h-8 rounded-full"
-            />
+            {activeTab === "profile" ? (
+              <button
+                onClick={() => {
+                  logout(); // Perform logout
+                  navigate("/"); // Redirect to home
+                }}
+                className="flex flex-col items-center bg-white text-red-600"
+              >
+                <IoIosLogOut className="w-5 h-5" />
+                <span className="text-xs mt-1">Logout</span>
+              </button>
+            ) : (
+              <img
+                src="https://avatar.iran.liara.run/public/31"
+                alt="Profile"
+                className="w-8 h-8 rounded-full"
+              />
+            )}
           </button>
+
         </div>
       </div>
 

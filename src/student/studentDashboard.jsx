@@ -17,8 +17,7 @@ import {
   enrollInCourse,
 } from "../services/studentService";
 import { Button, Card, CardBody, CardHeader, Progress } from "@nextui-org/react";
-import { Briefcase, UserCheck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { UserCheck } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -304,7 +303,7 @@ const Dashboard = () => {
 
         {/* Explore Courses */}
         {activeTab === "explore" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-16 lg:pb-1">
             <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
               {filteredCourses
                 .filter((course) => !enrolledCourses.some((c) => c.id === course.id)) // Exclude enrolled courses
@@ -328,7 +327,7 @@ const Dashboard = () => {
 
 
         {activeTab === "enrolled" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-16 lg:pb-1">
             <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
               {filteredEnrolledCourses.length > 0 ? (
                 filteredEnrolledCourses.map((course) => (
@@ -354,7 +353,7 @@ const Dashboard = () => {
 
         {/* Jobs Section */}
         {activeTab === "jobs" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-16 lg:pb-1">
             <div className="md:col-span-2 flex flex-col gap-6 mt-6">
               {jobs.length > 0 ? (
                 jobs
@@ -381,7 +380,7 @@ const Dashboard = () => {
         )}
 
         {activeTab === "applied" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 sm:mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 sm:mb-10 pb-16 lg:pb-1">
             {/* Applied Jobs List */}
             <div className="md:col-span-2 flex flex-col gap-6 mt-6">
               {appliedJobs.length > 0 ? (
